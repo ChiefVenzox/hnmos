@@ -1,0 +1,38 @@
+{
+  "manifest_version": 1,
+  "app_id": "org.hnmos.hn-monitor",
+  "name": "hn-monitor",
+  "type": "system_tool",
+  "entry": "main.hnl",
+  "runtime": "hnlang",
+  "description": "System status and event monitor for HNMos.",
+  "permissions": [
+    {
+      "capability": "read.system_status",
+      "scope": "system.summary",
+      "reason": "show system health"
+    },
+    {
+      "capability": "read.events.public",
+      "scope": "event_snapshot.public",
+      "reason": "show public hardware events"
+    }
+  ],
+  "shell": {
+    "command": "hn app run hn-monitor",
+    "aliases": [
+      "hn-monitor",
+      "hn monitor"
+    ]
+  },
+  "ui": {
+    "mode": "console",
+    "panels": [
+      "task_monitor"
+    ]
+  },
+  "ai": {
+    "uses_ai": false,
+    "context_policy": "none"
+  }
+}

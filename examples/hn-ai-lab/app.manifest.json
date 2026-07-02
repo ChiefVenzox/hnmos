@@ -1,0 +1,45 @@
+{
+  "manifest_version": 1,
+  "app_id": "org.hnmos.hn-ai-lab",
+  "name": "hn-ai-lab",
+  "type": "ai_assistant_app",
+  "entry": "main.hnl",
+  "runtime": "hnlang",
+  "description": "Safe AI Runtime Interface experiment app for HNMos.",
+  "permissions": [
+    {
+      "capability": "read.system_status",
+      "scope": "system.summary",
+      "reason": "allow AI to explain high-level system status"
+    },
+    {
+      "capability": "read.events.public",
+      "scope": "event_snapshot.public",
+      "reason": "allow AI to explain public event patterns"
+    },
+    {
+      "capability": "read.fs.metadata",
+      "scope": "/system",
+      "reason": "allow AI to inspect metadata only"
+    }
+  ],
+  "shell": {
+    "command": "hn app run hn-ai-lab",
+    "aliases": [
+      "hn-ai-lab",
+      "hn ai lab"
+    ]
+  },
+  "ui": {
+    "mode": "console",
+    "panels": [
+      "assistant_panel",
+      "task_monitor"
+    ]
+  },
+  "ai": {
+    "uses_ai": true,
+    "context_policy": "public_and_metadata_only",
+    "requires_user_approval_for_actions": true
+  }
+}

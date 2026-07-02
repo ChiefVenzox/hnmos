@@ -1,0 +1,38 @@
+{
+  "manifest_version": 1,
+  "app_id": "org.hnmos.hn-notes",
+  "name": "hn-notes",
+  "type": "task_app",
+  "entry": "main.hnl",
+  "runtime": "hnlang",
+  "description": "Notes and metadata task app for HNMos.",
+  "permissions": [
+    {
+      "capability": "read.fs.metadata",
+      "scope": "/notes",
+      "reason": "list note metadata"
+    },
+    {
+      "capability": "write.fs.file",
+      "scope": "/notes",
+      "reason": "save user-approved notes"
+    }
+  ],
+  "shell": {
+    "command": "hn app run hn-notes",
+    "aliases": [
+      "hn-notes"
+    ]
+  },
+  "ui": {
+    "mode": "console",
+    "panels": [
+      "command_palette"
+    ]
+  },
+  "ai": {
+    "uses_ai": true,
+    "context_policy": "notes_only",
+    "requires_user_approval_for_write": true
+  }
+}

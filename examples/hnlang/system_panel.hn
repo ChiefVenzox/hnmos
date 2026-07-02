@@ -1,0 +1,28 @@
+# HNlang Stage 0 UI description sample.
+# TODO: map app/screen/panel/button to launcher app screens and screen router.
+# TODO: connect namespace reads to safe kernel system-info providers.
+
+app "System" {
+  title "System"
+
+  screen "Overview" {
+    panel "Kernel" {
+      text kernel.version
+      text kernel.ticks
+    }
+
+    panel "Memory" {
+      text kernel.memory.total
+      text kernel.memory.used
+    }
+
+    panel "Graphics" {
+      text graphics.width
+      text graphics.height
+    }
+
+    button "Back" {
+      route "launcher"
+    }
+  }
+}

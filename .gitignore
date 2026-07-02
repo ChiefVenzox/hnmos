@@ -1,0 +1,43 @@
+# Local environment
+.env
+.env.*
+!.env.example
+
+# Build output
+/build/
+/dist/
+/out/
+*.o
+*.obj
+*.elf
+*.iso
+*.img
+*.bin
+*.map
+*.lst
+*.d
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Editor and OS metadata
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Tooling caches
+.cache/
+compile_commands.json
+tags
+cscope.*

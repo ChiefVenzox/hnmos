@@ -1,0 +1,9 @@
+# HNlang Stage 0 AI task sample.
+# TODO: convert ai task blocks into reviewed AI bridge proposals.
+# TODO: attach package/app model metadata after the app model is executable.
+
+ai task "summarize_system" {
+  input system.info
+  mode "local_or_bridge"
+  output console
+}

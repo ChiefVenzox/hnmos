@@ -1,0 +1,9 @@
+task "hnmos v0.0.1 demo" {
+  describe "Boot Kernel 01 in QEMU"
+  run "hn status"
+  run "hn ai status"
+  run "hn task list"
+  expect "HNMos Kernel 01 initialized."
+  expect "AI-native operating layer will be loaded later."
+  output "demo-report"
+}

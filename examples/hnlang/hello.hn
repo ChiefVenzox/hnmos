@@ -1,0 +1,12 @@
+# HNlang Stage 0 sample.
+# TODO: wire cmd blocks into HNShell command execution after parser/interpreter exist.
+
+print "Hello HNMos"
+print "Merhaba HNMos, dünya"
+
+let name = "HNMos"
+print name
+
+cmd hello {
+  print "Hello from HNlang"
+}

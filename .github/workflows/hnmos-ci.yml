@@ -1,0 +1,42 @@
+name: HNMos CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  kernel-static:
+    name: Kernel static verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install toolchain packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential gcc-multilib binutils file grub-common jq
+
+      - name: Check host tools
+        run: make check-tools
+
+      - name: Build and verify Kernel 01
+        run: sh tools/test/static-check.sh
+
+  qemu-smoke:
+    name: QEMU smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install QEMU packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential gcc-multilib binutils file grub-common qemu-system-x86
+
+      - name: Build Kernel 01
+        run: make kernel
+
+      - name: Boot Kernel 01 in QEMU
+        run: sh tools/test/qemu-smoke.sh
