@@ -100,6 +100,38 @@ User Intent
 
 Task Graph, AI'nin tek seferlik serbest komutlar uretmesi yerine OS tarafindan izlenen adimlar uretmesini saglar.
 
+### AI Assembly Plan
+
+AI Assembly Plan, AI istegini makineye dogrudan calistirilacak assembly kodu olarak degil, OS tarafindan sinirlanan kucuk bir ara komut listesi olarak temsil eder.
+
+Ilk plan adimlari:
+
+```text
+observe_machine
+route_context
+bound_task
+draft_response
+wait_permission
+return_result
+```
+
+CPU/RAM/GPU senkronizasyon istegi icin plan daha aciktir:
+
+```text
+observe_machine
+sync_cpu
+sync_ram
+sync_gpu
+route_context
+return_result
+```
+
+`observe_machine`, kernel icindeki kucuk i386 assembly yardimcilariyla yalnizca sanitize edilmis CPU durumunu okur: protected mode, paging ve interrupt flag. Ham bellek, pointer, page table veya AI tarafindan uretilmis makine komutu acilmaz.
+
+`sync_cpu`, `sync_ram` ve `sync_gpu`, System Sync Layer uzerinden CPU serialize, RAM barrier ve CPU-side framebuffer write barrier checkpoint'i alir. Bu GPU path'i gercek command queue, vblank veya command completion fence'i degildir.
+
+Bu modelin amaci AI'nin makineyle daha sistematik konusmasini saglamak, fakat kernel guvenlik sinirlarini ve permission gate'i korumaktir.
+
 ### Permission Gate
 
 Permission Gate, AI'nin sistem eylemlerini hangi yetkiyle onerebilecegini veya calistirabilecegini belirler.

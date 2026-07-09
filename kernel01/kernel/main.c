@@ -15,6 +15,7 @@
 #include "interface/router.h"
 #include "memory/heap.h"
 #include "memory/pmm.h"
+#include "sync/system_sync.h"
 #include "task/scheduler.h"
 
 enum {
@@ -76,6 +77,7 @@ void hnm_kernel_main(u32 multiboot_magic, u32 multiboot_info_addr)
     hnm_heap_log_stats();
     hnm_fs_init();
     hnm_scheduler_init();
+    hnm_sync_init();
     hnm_ai_bridge_init();
 
     hnm_log_write_line("status: Kernel 01 is idle.");
@@ -83,6 +85,7 @@ void hnm_kernel_main(u32 multiboot_magic, u32 multiboot_info_addr)
     hnm_log_write_line("console: minimal output console ready.");
     hnm_log_write_line("hnshell: offline demo stub ready.");
     hnm_log_write_line("ai-runtime: OS interface stub ready; no model loaded.");
+    hnm_log_write_line("sync-runtime: cpu/ram/framebuffer checkpoint interface ready.");
     hnm_log_write_line("task-demo: hn status -> Kernel 01 idle.");
     hnm_log_write_line("task-demo: hn ai status -> AI runtime stub offline.");
     hnm_log_write_line("task-demo: hn task list -> demo task queue empty.");

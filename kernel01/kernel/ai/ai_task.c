@@ -99,6 +99,14 @@ const char *hnm_ai_task_type_name(enum hnm_ai_task_type task_type)
         return "status";
     }
 
+    if (task_type == HNM_AI_TASK_ASSEMBLY) {
+        return "assembly";
+    }
+
+    if (task_type == HNM_AI_TASK_SYNC) {
+        return "sync";
+    }
+
     if (task_type == HNM_AI_TASK_HNLANG) {
         return "hnlang";
     }

@@ -8,6 +8,7 @@
 #include "../kernel/graphics/console_graphics.h"
 #include "../kernel/interface/input_dispatcher.h"
 #include "../kernel/interface/router.h"
+#include "../kernel/sync/system_sync.h"
 #include "../kernel/task/scheduler.h"
 
 enum {
@@ -133,6 +134,56 @@ static void hnm_terminal_write_u32(u32 value)
         digit_count--;
         hnm_console_put_char(digits[digit_count]);
     }
+}
+
+static void hnm_terminal_print_ai_assembly_program(const struct hnm_ai_assembly_program *program)
+{
+    if (program == 0) {
+        hnm_console_write_line("ai asm: no program available");
+        return;
+    }
+
+    hnm_console_write_line(hnm_ai_assembly_machine_summary(program));
+    hnm_console_write_line("ai asm plan:");
+
+    for (u32 i = 0; i < program->instruction_count; i++) {
+        hnm_terminal_write_u32(i);
+        hnm_console_write(" ");
+        hnm_console_write_line(hnm_ai_assembly_opcode_name(program->instructions[i].opcode));
+    }
+}
+
+static void hnm_terminal_print_sync_snapshot(const struct hnm_sync_snapshot *snapshot)
+{
+    if (snapshot == 0) {
+        hnm_console_write_line("sync: unavailable");
+        return;
+    }
+
+    hnm_console_write_line(hnm_sync_summary(snapshot));
+    hnm_console_write_line(hnm_sync_gpu_summary(snapshot));
+    hnm_console_write("sync sequence: ");
+    hnm_terminal_write_u32(snapshot->sequence);
+    hnm_console_newline();
+    hnm_console_write("cpu fences: ");
+    hnm_terminal_write_u32(snapshot->cpu_fence_count);
+    hnm_console_write(" ram fences: ");
+    hnm_terminal_write_u32(snapshot->ram_fence_count);
+    hnm_console_write(" fb barriers: ");
+    hnm_terminal_write_u32(snapshot->gpu_fence_count);
+    hnm_console_newline();
+    hnm_console_write("free pages: ");
+    hnm_terminal_write_u32(snapshot->pmm_free_pages);
+    hnm_console_write(" heap used: ");
+    hnm_terminal_write_u32(snapshot->heap_used_bytes);
+    hnm_console_newline();
+    hnm_console_write("framebuffer: ");
+    hnm_terminal_write_u32(snapshot->framebuffer_width);
+    hnm_console_write("x");
+    hnm_terminal_write_u32(snapshot->framebuffer_height);
+    hnm_console_write("x");
+    hnm_terminal_write_u32(snapshot->framebuffer_bpp);
+    hnm_console_newline();
 }
 
 static void hnm_terminal_prompt(void)
@@ -273,6 +324,16 @@ static void hnm_terminal_execute_tasks(void)
     hnm_terminal_prompt();
 }
 
+static void hnm_terminal_execute_sync(void)
+{
+    struct hnm_sync_snapshot snapshot;
+
+    hnm_log_write_line("terminal command: sync");
+    hnm_sync_checkpoint(&snapshot);
+    hnm_terminal_print_sync_snapshot(&snapshot);
+    hnm_terminal_prompt();
+}
+
 static void hnm_terminal_execute_ai(const char *argument)
 {
     const char *response;
@@ -308,7 +369,27 @@ static void hnm_terminal_execute_ai(const char *argument)
         return;
     }
 
-    hnm_console_write_line("ai commands: ai help, ai sysinfo, ai status");
+    if (hnm_string_equal(argument, "asm") ||
+        hnm_string_equal(argument, "assembly")) {
+        response = hnm_ai_bridge_request_assembly();
+        hnm_console_write_line(response);
+        hnm_log_write_line(response);
+        hnm_terminal_print_ai_assembly_program(hnm_ai_bridge_last_assembly_program());
+        hnm_terminal_prompt();
+        return;
+    }
+
+    if (hnm_string_equal(argument, "sync")) {
+        response = hnm_ai_bridge_request_sync();
+        hnm_console_write_line(response);
+        hnm_log_write_line(response);
+        hnm_console_write_line(hnm_ai_bridge_sync_summary());
+        hnm_terminal_print_ai_assembly_program(hnm_ai_bridge_last_assembly_program());
+        hnm_terminal_prompt();
+        return;
+    }
+
+    hnm_console_write_line("ai commands: ai help, ai sysinfo, ai status, ai asm, ai sync");
     hnm_terminal_prompt();
 }
 
@@ -321,7 +402,8 @@ static void hnm_terminal_execute_command(const char *command)
 
     if (hnm_string_equal(command, "help")) {
         hnm_log_write_line("terminal command: help");
-        hnm_console_write_line("commands: help version clear halt reboot ls cat tasks ai back exit launcher");
+        hnm_console_write_line("commands: help version clear halt reboot ls cat tasks sync ai back exit launcher");
+        hnm_console_write_line("ai commands: ai help, ai sysinfo, ai status, ai asm, ai sync");
         hnm_terminal_prompt();
         return;
     }
@@ -333,6 +415,11 @@ static void hnm_terminal_execute_command(const char *command)
 
     if (hnm_string_equal(command, "tasks")) {
         hnm_terminal_execute_tasks();
+        return;
+    }
+
+    if (hnm_string_equal(command, "sync")) {
+        hnm_terminal_execute_sync();
         return;
     }
 
@@ -429,8 +516,8 @@ void hnm_terminal_show_screen(void)
     hnm_console_clear();
     hnm_console_set_cursor(4, 4);
     hnm_console_write_line("HNMos Terminal");
-    hnm_console_write_line("commands: help version clear halt reboot ls cat tasks ai back exit launcher");
-    hnm_console_write_line("ai commands: ai help, ai sysinfo, ai status");
+    hnm_console_write_line("commands: help version clear halt reboot ls cat tasks sync ai back exit launcher");
+    hnm_console_write_line("ai commands: ai help, ai sysinfo, ai status, ai asm, ai sync");
     hnm_console_write_line("ESC/back/exit/launcher returns to Launcher");
     hnm_console_newline();
     hnm_terminal_prompt();

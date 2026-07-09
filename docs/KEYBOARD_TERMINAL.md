@@ -70,9 +70,12 @@ reboot
 ls
 cat
 tasks
+sync
 ai help
 ai sysinfo
 ai status
+ai asm
+ai sync
 back
 exit
 launcher
@@ -88,9 +91,12 @@ Davranis:
 - `ls`: read-only RAM filesystem altindaki node'lari listeler.
 - `cat`: read-only RAM filesystem dosyasi okur.
 - `tasks`: kernel-side task registry ve cooperative scheduler durumunu listeler.
+- `sync`: CPU/RAM ve CPU-side framebuffer checkpoint alir ve ozet sayaclari yazar.
 - `ai help`: deterministic AI stub yardim cevabini yazar.
 - `ai sysinfo`: deterministic AI stub sistem ozet cevabini yazar.
 - `ai status`: aktif AI stub provider durumunu yazar.
+- `ai asm`: AI assembly planini ve sanitize edilmis makine snapshot ozetini yazar.
+- `ai sync`: kernel-owned CPU/RAM/framebuffer checkpoint'ini AI assembly planina baglar.
 - `back`, `exit`, `launcher`: screen router uzerinden Launcher'a doner.
 
 ## QEMU Test Notu

@@ -52,6 +52,19 @@ Mevcut cizim ozellikleri:
 
 - `hnm_framebuffer_put_pixel(x, y, color)`
 - `hnm_framebuffer_clear(color)`
+
+## Framebuffer Write Ordering Notu
+
+Kernel 01'de gercek GPU command queue yoktur. System Sync Layer, framebuffer hazir oldugunda yalniz CPU-side framebuffer write barrier uygular:
+
+```text
+hnm_sync_gpu_fence()
+  -> framebuffer available?
+  -> memory barrier
+  -> gpu_fence_count++
+```
+
+Mevcut API adi gelecekteki driver-specific fence katmanina ayrilmistir; bugun vblank, scanout, DMA veya command completion kanitlamaz. AI Runtime Interface bu durumu sadece ozet olarak gorebilir.
 - `hnm_draw_fill_rect(x, y, width, height, color)`
 - `hnm_draw_rect(x, y, width, height, color)`
 - Basit RGB renk yardimcilari.
