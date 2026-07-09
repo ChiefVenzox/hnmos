@@ -32,7 +32,7 @@ static void hnm_router_reserved_render(void)
     struct hnm_ui_panel panel;
     struct hnm_ui_label label;
     u32 panel_width = 520;
-    u32 panel_height = 232;
+    u32 panel_height = 296;
     u32 panel_x;
     u32 panel_y = 152;
 
@@ -90,7 +90,22 @@ static void hnm_router_reserved_render(void)
     hnm_ui_label_render(&label);
 
     label.x = panel_x + 24;
-    label.y = panel_y + 178;
+    label.y = panel_y + 166;
+    label.text = hnm_ai_bridge_machine_summary();
+    label.foreground = theme->muted_text;
+    hnm_ui_label_render(&label);
+
+    label.y = panel_y + 190;
+    label.text = hnm_ai_bridge_sync_summary();
+    label.foreground = theme->muted_text;
+    hnm_ui_label_render(&label);
+
+    label.y = panel_y + 214;
+    label.text = "ai asm: observe -> route -> draft -> permission";
+    label.foreground = theme->accent_alt;
+    hnm_ui_label_render(&label);
+
+    label.y = panel_y + 244;
     label.text = "ESC returns to Launcher";
     label.foreground = theme->accent_alt;
     hnm_ui_label_render(&label);

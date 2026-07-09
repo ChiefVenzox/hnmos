@@ -1,3 +1,4 @@
+.code32
 .set MULTIBOOT_MAGIC, 0x1BADB002
 .set MULTIBOOT_ALIGN, 1 << 0
 .set MULTIBOOT_MEMINFO, 1 << 1
@@ -26,7 +27,9 @@ stack_top:
 .type _start, @function
 _start:
     mov $stack_top, %esp
+    cld
 
+    subl $8, %esp
     push %ebx
     push %eax
     call hnm_kernel_main

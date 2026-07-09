@@ -28,6 +28,7 @@ Asgari kernel build:
 
 - `make`
 - `i686-elf-gcc` veya host `gcc` + `-m32` destegi
+- `file`, `od`, hedefe uygun `nm` ve `objdump`
 
 QEMU testi:
 
@@ -50,11 +51,15 @@ make check-tools
 ./tools/toolchain/check.sh
 ```
 
-Script, eksik araclari raporlar. QEMU ve ISO araclari kernel ELF derlemesi icin zorunlu degildir; fakat boot testi ve boot edilebilir imaj icin gerekir.
+`check-tools`, secilen compiler ile gercek bir freestanding C compile, x86 assembly ve ELF32/i386 link probe'u yapar. `make check-kernel-toolchain` bunun yalniz kernel build icin zorunlu alt kumesidir. QEMU ve ISO araclari kernel ELF derlemesi icin zorunlu degildir; fakat boot testi ve boot edilebilir imaj icin gerekir.
 
 ## Cross Compiler Notu
 
-Tercih edilen yol `i686-elf-gcc` gibi bir cross compiler kullanmaktir. Eger yoksa Makefile host `gcc -m32` yolunu dener.
+Tercih edilen yol `i686-elf-gcc` gibi bir cross compiler kullanmaktir. Host `gcc -m32` fallback'i yalniz Linux x86/x86_64 hostlarda denenir. macOS, non-x86 hostlar ve Windows'un POSIX ortamlari `i686-elf-` cross toolchain veya acik `CROSS_COMPILE=/path/to/i686-elf-` ister. Bir executable'in adinin `gcc` olmasi yeterli kabul edilmez; probe yanlis object formatini veya linker'i reddeder.
+
+Repo scriptleri `#!/usr/bin/env sh` ile POSIX shell hedefler. `make check-shell` bunlari hem POSIX `sh` hem `bash --posix` parser'i ile kontrol eder. Bash bir kernel/HNShell runtime bagimliligi degildir ve HNShell `.sh` dosyalarini calistirmaz.
+
+`make verify`, Multiboot header'i ilk 8192 byte icinde ve checksum ile dogrudan kontrol eder. `grub-file` kuruluysa ek bir dogrulama olarak calisir.
 
 Uzun vadede `tools/toolchain/` altinda HNMos'a ozel cross compiler kurulum notlari ve otomasyonlari tutulacaktir.
 

@@ -30,6 +30,14 @@ static int hnm_ai_stub_poll_task(struct hnm_ai_task *task)
         hnm_ai_task_set_output(
             task,
             "AI Stub: provider active. Real AI runtime is not enabled yet.");
+    } else if (task->task_type == HNM_AI_TASK_ASSEMBLY) {
+        hnm_ai_task_set_output(
+            task,
+            "AI Stub: AI assembly plan ready. Kernel snapshot observed; external actions remain gated.");
+    } else if (task->task_type == HNM_AI_TASK_SYNC) {
+        hnm_ai_task_set_output(
+            task,
+            "AI Stub: Kernel-owned CPU/RAM/framebuffer checkpoint executed; external actions remain gated.");
     } else if (task->task_type == HNM_AI_TASK_HNLANG) {
         hnm_ai_task_set_output(
             task,

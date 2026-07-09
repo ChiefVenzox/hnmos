@@ -9,6 +9,7 @@
 #include "../../log.h"
 #include "../../memory/heap.h"
 #include "../../memory/pmm.h"
+#include "../../sync/system_sync.h"
 #include "../../task/scheduler.h"
 #include "../../../drivers/mouse.h"
 
@@ -138,6 +139,7 @@ void hnm_system_screen_render(void)
     char heap_text[64];
     char fs_text[64];
     char task_text[80];
+    struct hnm_sync_snapshot sync;
     u32 window_width = 560;
     u32 window_height = 328;
     u32 window_x;
@@ -180,6 +182,7 @@ void hnm_system_screen_render(void)
     hnm_system_stat_text(heap_text, sizeof(heap_text), "heap pages: ", heap.page_count, "");
     hnm_system_stat_text(fs_text, sizeof(fs_text), "filesystem nodes: ", hnm_fs_node_count(), "");
     hnm_system_task_text(task_text, sizeof(task_text));
+    hnm_sync_capture(&sync);
     hnm_system_label(panel_x + 16, panel_y + 18, "kernel: HNMos Kernel 01", theme->text, theme->panel_alt);
     hnm_system_label(panel_x + 16, panel_y + 42, resolution, theme->text, theme->panel_alt);
     hnm_system_label(panel_x + 16, panel_y + 66, memory_text, theme->muted_text, theme->panel_alt);
@@ -193,6 +196,7 @@ void hnm_system_screen_render(void)
         theme->panel_alt);
     hnm_system_label(panel_x + 16, panel_y + 162, fs_text, theme->muted_text, theme->panel_alt);
     hnm_system_label(panel_x + 16, panel_y + 186, task_text, theme->muted_text, theme->panel_alt);
-    hnm_system_label(panel_x + 16, panel_y + 210, "tick: no timer irq yet", theme->muted_text, theme->panel_alt);
-    hnm_system_label(panel_x + 16, panel_y + 240, "keys: 1 terminal 2 system 3 memory 4 shutdown", theme->accent_alt, theme->panel_alt);
+    hnm_system_label(panel_x + 16, panel_y + 210, hnm_sync_summary(&sync), theme->muted_text, theme->panel_alt);
+    hnm_system_label(panel_x + 16, panel_y + 234, "tick: no timer irq yet", theme->muted_text, theme->panel_alt);
+    hnm_system_label(panel_x + 16, panel_y + 258, "keys: 1 terminal 2 system 3 memory 4 shutdown", theme->accent_alt, theme->panel_alt);
 }

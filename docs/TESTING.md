@@ -18,6 +18,8 @@ tests/
 
 tools/
 `-- test/
+    |-- kernel-abi-check.sh
+    |-- shell-compat.sh
     |-- static-check.sh
     `-- qemu-smoke.sh
 
@@ -87,10 +89,10 @@ make verify
 Beklenen statik sonuc:
 
 ```text
-ELF 32-bit LSB executable, Intel 80386
-Entry point address: 0x101000
-multiboot: ok
+kernel ABI: ELF32 i686, Multiboot, assembly symbols and no-SIMD policy ok
 ```
+
+Checker ELF header/entry, Multiboot header/checksum, undefined symbol, zorunlu assembly sembolleri ve sync talimatlari ile final-binary no-SIMD/FPU politikasini denetler. Bu statik kontrol tek basina spinlock stress/correctness testi veya gercek GPU completion kaniti degildir.
 
 ## QEMU Boot Test Mantigi
 
@@ -111,6 +113,14 @@ status: Kernel 01 is idle.
 ```
 
 Kernel sonsuz `hlt` dongusunde kalabildigi icin QEMU smoke test timeout ile sonlandirilir. Timeout, mesajlar gorulduyse hata kabul edilmez.
+
+## Host Shell Uyumlulugu
+
+```sh
+make check-shell
+```
+
+Bu hedef repo icindeki `.sh` dosyalarinin exact POSIX shebang'ini, `sh -n`, `bash --posix -n` ve varsa `dash -n` parse sonucunu kontrol eder. Ayrica build/QEMU dispatcher'larinin repo disindaki bir current directory'den gecersiz arguman davranisini bu shell'ler altinda dogrular. Bu test host build/test orkestrasyonu icindir; kernel icindeki HNShell parser veya runtime testi degildir.
 
 ## Kernel Panic Test Mantigi
 
@@ -233,7 +243,7 @@ Ornek:
 
 CI iki temel isle baslar:
 
-1. `kernel-static`: toolchain kurar, `make verify` calistirir, manifest JSON'larini dogrular.
+1. `kernel-static`: toolchain kurar, ABI/no-SIMD ve POSIX/Bash shell kontrollerini calistirir, manifest JSON'larini dogrular.
 2. `qemu-smoke`: Kernel 01'i QEMU'da boot eder ve serial log mesajlarini arar.
 
 Workflow dosyasi:
@@ -280,10 +290,10 @@ Release adayi cikmadan once:
 
 ## Test Uygulama Notu
 
-Test tasarimi ilk calisan test hedeflerine indirilirken hedef:
+Sonraki test hedefleri:
 
-1. `make test-static` hedefi.
-2. `make test-qemu` hedefi.
+1. Mevcut `make check` hedefini unit testlerle genisletmek.
+2. Mevcut `sh tools/test/qemu-smoke.sh` akisina HNShell input otomasyonu eklemek.
 3. HNShell parser icin ilk unit test taslagi.
 4. HNLang parser fixture dizini.
 5. AI permission matrix test verisi.

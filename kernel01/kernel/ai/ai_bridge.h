@@ -1,6 +1,7 @@
 #ifndef HNM_AI_BRIDGE_H
 #define HNM_AI_BRIDGE_H
 
+#include "ai_assembly.h"
 #include "ai_provider.h"
 #include "ai_task.h"
 #include "../types.h"
@@ -13,8 +14,13 @@ const char *hnm_ai_bridge_provider_name(void);
 const char *hnm_ai_bridge_provider_type_name(void);
 const char *hnm_ai_bridge_status_text(void);
 const struct hnm_ai_task *hnm_ai_bridge_last_task(void);
+const struct hnm_ai_assembly_program *hnm_ai_bridge_last_assembly_program(void);
+const char *hnm_ai_bridge_machine_summary(void);
+const char *hnm_ai_bridge_sync_summary(void);
 const char *hnm_ai_bridge_request_help(void);
 const char *hnm_ai_bridge_request_sysinfo(void);
 const char *hnm_ai_bridge_request_status(void);
+const char *hnm_ai_bridge_request_assembly(void);
+const char *hnm_ai_bridge_request_sync(void);
 
 #endif

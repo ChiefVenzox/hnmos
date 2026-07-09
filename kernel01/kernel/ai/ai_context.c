@@ -10,6 +10,14 @@ const char *hnm_ai_context_summary(u32 context_flags)
         return "hnlang task";
     }
 
+    if ((context_flags & HNM_AI_CONTEXT_SYNC_STATE) != 0) {
+        return "sync state";
+    }
+
+    if ((context_flags & HNM_AI_CONTEXT_MACHINE_STATE) != 0) {
+        return "machine state";
+    }
+
     if ((context_flags & HNM_AI_CONTEXT_SYSTEM_INFO) != 0) {
         return "system info";
     }
