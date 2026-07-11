@@ -1,12 +1,12 @@
-# HNMos AI Integration Skeleton
+# HNMos AI Integration
 
 ## Status
 
-HNMOS-CODEX-15 adds the first AI-ready abstraction layer for HNMos.
+HNMOS-CODEX-15 started the AI-ready abstraction layer. AI Studio now adds a working OpenAI provider path for the QEMU development environment.
 
-This is not a real AI runtime. No LLM is embedded in the kernel. No networking, GPU, accelerator, model loader, or external AI dependency is added.
+No LLM is embedded in the kernel. HNMos frames bounded HNLang tasks over COM2; a host bridge performs the HTTPS Responses API call and returns an untrusted draft. Native networking, GPU inference, and a model loader are still not part of Kernel 01.
 
-Current behavior is deterministic stub output only. Every placeholder response is labeled with `AI Stub:`.
+HNLang generation uses the external bridge. System status/help requests remain on the deterministic local provider so raw kernel context is not sent to the external model.
 
 ## Why Real LLM Inference Is Not In The Kernel Yet
 
@@ -21,7 +21,7 @@ Putting a full model directly inside the early kernel would be unsafe and brittl
 - There is no GPU or accelerator driver layer.
 - Blocking the kernel while waiting for AI output would break responsiveness.
 
-The correct first step is a small AI bridge with fixed data structures, provider interfaces, and stub responses.
+The implementation keeps fixed task structures and provider interfaces, with a COM2 transport adapter that can later be replaced by native user-space networking.
 
 ## Kernel Module Layout
 
@@ -34,6 +34,11 @@ kernel01/kernel/ai/ai_machine.*
 kernel01/kernel/ai/ai_machine_asm.*
 kernel01/kernel/ai/ai_assembly.*
 kernel01/kernel/ai/ai_stub_provider.*
+kernel01/kernel/ai/ai_serial_provider.*
+kernel01/kernel/ai/ai_serial_transport.*
+kernel01/kernel/ai/ai_session.*
+kernel01/kernel/ai/ai_workspace_policy.*
+kernel01/kernel/ai/hnlang_ai_profile.*
 kernel01/kernel/sync/system_sync.*
 kernel01/kernel/sync/sync_asm.*
 ```
@@ -46,6 +51,7 @@ kernel01/kernel/sync/sync_asm.*
 task_id
 task_type
 input text buffer
+language_profile
 context_flags
 status
 output buffer
@@ -58,6 +64,7 @@ AI_TASK_EMPTY
 AI_TASK_PENDING
 AI_TASK_RUNNING
 AI_TASK_DONE
+AI_TASK_CANCELLED
 AI_TASK_ERROR
 ```
 
@@ -84,10 +91,11 @@ hardware_accelerator
 offline_rule_engine
 ```
 
-Current provider:
+Current providers:
 
 ```text
-stub
+external_bridge -> HNLang generation over COM2
+stub            -> local status/help/sync requests
 ```
 
 ## AI Bridge Architecture
@@ -102,14 +110,16 @@ terminal/UI/HNlang request
 
 The bridge owns the active provider pointer and last task slot.
 
-Current bridge behavior:
+Current HNLang bridge behavior:
 
 1. Prepare a task with fixed buffers.
-2. Submit it to the stub provider.
-3. Poll once.
-4. Return the deterministic placeholder result.
+2. Attach the compact HNLang grammar/security profile.
+3. Submit a framed request over COM2.
+4. IRQ3 wakes the kernel when the response arrives.
+5. Validate the `/workspace/main.hn` target through policy.
+6. Store and render the untrusted RAM draft.
 
-There is no wait loop and no asynchronous model runtime yet.
+There is no blocking wait loop. The provider response is asynchronous and cannot directly execute shell, syscall, driver, kernel, boot, policy, or audit operations.
 
 ## AI Assembly And Machine Snapshot
 
@@ -190,20 +200,20 @@ Unknown AI subcommands return:
 ai commands: ai help, ai sysinfo, ai status, ai asm, ai sync
 ```
 
-## Graphical AI Panel
+## Graphical AI Studio
 
-The screen router exposes a stub AI panel:
+The screen router exposes a bounded AI development surface:
 
 ```text
-HNMos AI Panel
-status: Stub provider active
-Real AI runtime not enabled yet
+AI CONNECTION
+HN AI Studio | main.hn | HNLang AI profile
+Generate draft | Review | Build request
 ```
 
 Launcher shortcut:
 
 ```text
-5 = AI Panel
+5 = AI Studio
 ```
 
 Back navigation:
@@ -211,6 +221,8 @@ Back navigation:
 ```text
 ESC = Launcher
 ```
+
+The QEMU development path now supports a live provider session. HNMos sends framed requests over COM2, `tools/ai/openai_bridge.py` calls the OpenAI Responses API over HTTPS, and the response returns to `/workspace/main.hn`. API-key capture is masked and volatile; ChatGPT subscriptions are not treated as API authorization. Workspace policy denies kernel, boot, policy, driver, and audit mutation. See `docs/HNLANG_AI_STUDIO.md`.
 
 ## HNlang Integration Plan
 

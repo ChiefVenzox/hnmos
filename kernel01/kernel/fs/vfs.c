@@ -1,5 +1,6 @@
 #include "vfs.h"
 #include "ramfs.h"
+#include "../ai/ai_workspace_policy.h"
 #include "../log.h"
 
 static int hnm_fs_ready;
@@ -10,7 +11,7 @@ void hnm_fs_init(void)
     hnm_fs_ready = 1;
 
     hnm_log_write_line("fs: VFS ready.");
-    hnm_log_write_line("fs: readonly ramfs mounted.");
+    hnm_log_write_line("fs: readonly system + writable HNLang workspace mounted.");
 }
 
 int hnm_fs_is_ready(void)
@@ -34,6 +35,18 @@ int hnm_fs_list(const char *path, struct hnm_fs_list *list)
     }
 
     return hnm_ramfs_list(path, list);
+}
+
+int hnm_fs_write_hnlang_draft(const char *path, const char *data)
+{
+    if (!hnm_fs_ready || data == 0 ||
+        hnm_ai_workspace_policy_decide_path(
+            HNM_AI_CAP_WRITE_HNLANG_DRAFT,
+            path) != HNM_AI_POLICY_ALLOW) {
+        return 0;
+    }
+
+    return hnm_ramfs_write_workspace_hnlang(path, data);
 }
 
 u32 hnm_fs_node_count(void)

@@ -230,6 +230,8 @@ ai task "summarize_system" {
 
 HNMOS-CODEX-15 adds the first `ai_bridge` skeleton for this future syntax. Stage 0 HNlang files are not executed yet; later parser work should convert `ai task` blocks into bounded AI task requests before they reach the bridge.
 
+AI Studio introduces a provider-independent HNLang knowledge profile with typed primitives and bounded recipes. The profile may generate drafts only under `/workspace/*.hn`; subscription or API credentials never grant kernel, boot, policy, driver, or audit authority. The primitive catalog, composition recipes, approval boundaries, and transport limitations are defined in `docs/HNLANG_AI_STUDIO.md`.
+
 ## Lexical Rules
 
 ### Source Encoding

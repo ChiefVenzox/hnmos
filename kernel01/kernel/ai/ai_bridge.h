@@ -9,6 +9,7 @@
 void hnm_ai_bridge_init(void);
 int hnm_ai_bridge_submit(enum hnm_ai_task_type task_type, const char *input, u32 context_flags);
 int hnm_ai_bridge_poll(void);
+int hnm_ai_bridge_cancel(void);
 const char *hnm_ai_bridge_result(void);
 const char *hnm_ai_bridge_provider_name(void);
 const char *hnm_ai_bridge_provider_type_name(void);

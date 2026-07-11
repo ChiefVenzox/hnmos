@@ -12,7 +12,7 @@ AI modeli kernel icine gomulmez.
 
 AI sistemi Windows/Linux/macOS uzerinde calisan ayri bir prototip servis olarak da tasarlanmaz.
 
-Hedef mimari, HNMos'un kendi Core OS katmanlari olgunlastikca user-space seviyesinde calisabilecek bir AI runtime arayuzudur.
+Hedef mimari, HNMos'un kendi Core OS katmanlari olgunlastikca user-space seviyesinde calisabilecek bir AI runtime arayuzudur. Kernel 01'deki COM2 OpenAI bridge yalnizca QEMU gelistirme tasimasidir: task, policy, workspace ve UI HNMos icinde kalir; host script kernelin veya runtime'in yerine gecmez. Native network/TLS hazir oldugunda bu tasima adapter'i kaldirilir.
 
 ## Dosya Yapisi
 

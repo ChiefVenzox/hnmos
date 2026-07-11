@@ -291,6 +291,11 @@ assert_function_order hnm_irq1_stub \
     'and[a-z]*.*(\$-0x10|\$0xfffffff0).*%esp' '[[:space:]]cld' \
     'call[a-z]*.*<hnm_keyboard_irq_handler>' 'mov[a-z]*.*%ebp.*%esp' \
     '[[:space:]]popa' '[[:space:]]iret'
+assert_function_order hnm_irq3_stub \
+    '[[:space:]]pusha' 'mov[a-z]*.*%esp.*%ebp' \
+    'and[a-z]*.*(\$-0x10|\$0xfffffff0).*%esp' '[[:space:]]cld' \
+    'call[a-z]*.*<hnm_ai_serial_irq_handler>' 'mov[a-z]*.*%ebp.*%esp' \
+    '[[:space:]]popa' '[[:space:]]iret'
 assert_function_order hnm_irq12_stub \
     '[[:space:]]pusha' 'mov[a-z]*.*%esp.*%ebp' \
     'and[a-z]*.*(\$-0x10|\$0xfffffff0).*%esp' '[[:space:]]cld' \

@@ -8,8 +8,10 @@ enum {
     HNM_IDT_INTERRUPT_GATE = 0x8E,
     HNM_IRQ_KEYBOARD = 1,
     HNM_IRQ_CASCADE = 2,
+    HNM_IRQ_AI_SERIAL = 3,
     HNM_IRQ_MOUSE = 12,
     HNM_IRQ_KEYBOARD_VECTOR = 0x21,
+    HNM_IRQ_AI_SERIAL_VECTOR = 0x23,
     HNM_IRQ_MOUSE_VECTOR = 0x2C,
     HNM_PIC1_COMMAND = 0x20,
     HNM_PIC1_DATA = 0x21,
@@ -35,6 +37,7 @@ struct hnm_idt_pointer {
 } __attribute__((packed));
 
 extern void hnm_irq1_stub(void);
+extern void hnm_irq3_stub(void);
 extern void hnm_irq12_stub(void);
 
 static struct hnm_idt_entry hnm_idt[HNM_IDT_ENTRIES];
@@ -60,7 +63,10 @@ static void hnm_idt_load(void)
 
 static void hnm_pic_remap_input_irqs(void)
 {
-    u8 master_mask = (u8)~((1 << HNM_IRQ_KEYBOARD) | (1 << HNM_IRQ_CASCADE));
+    u8 master_mask = (u8)~(
+        (1 << HNM_IRQ_KEYBOARD) |
+        (1 << HNM_IRQ_CASCADE) |
+        (1 << HNM_IRQ_AI_SERIAL));
     u8 slave_mask = (u8)~(1 << (HNM_IRQ_MOUSE - 8));
 
     hnm_outb(HNM_PIC1_COMMAND, HNM_ICW1_INIT | HNM_ICW1_ICW4);
@@ -107,10 +113,11 @@ void hnm_interrupts_init(void)
     }
 
     hnm_idt_set_gate(HNM_IRQ_KEYBOARD_VECTOR, (u32)hnm_irq1_stub);
+    hnm_idt_set_gate(HNM_IRQ_AI_SERIAL_VECTOR, (u32)hnm_irq3_stub);
     hnm_idt_set_gate(HNM_IRQ_MOUSE_VECTOR, (u32)hnm_irq12_stub);
     hnm_idt_load();
     hnm_pic_remap_input_irqs();
-    hnm_log_write_line("interrupts: IDT ready, PIC IRQ1/IRQ12 unmasked.");
+    hnm_log_write_line("interrupts: IDT ready, PIC IRQ1/IRQ3/IRQ12 unmasked.");
 }
 
 void hnm_interrupts_enable(void)

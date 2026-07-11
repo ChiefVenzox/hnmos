@@ -5,7 +5,7 @@
 
 enum {
     HNM_AI_TASK_INPUT_MAX = 160,
-    HNM_AI_TASK_OUTPUT_MAX = 192
+    HNM_AI_TASK_OUTPUT_MAX = 1024
 };
 
 enum hnm_ai_task_type {
@@ -24,6 +24,7 @@ enum hnm_ai_task_status {
     AI_TASK_PENDING,
     AI_TASK_RUNNING,
     AI_TASK_DONE,
+    AI_TASK_CANCELLED,
     AI_TASK_ERROR
 };
 
@@ -31,6 +32,7 @@ struct hnm_ai_task {
     u32 task_id;
     enum hnm_ai_task_type task_type;
     char input[HNM_AI_TASK_INPUT_MAX];
+    const char *language_profile;
     u32 context_flags;
     enum hnm_ai_task_status status;
     char output[HNM_AI_TASK_OUTPUT_MAX];

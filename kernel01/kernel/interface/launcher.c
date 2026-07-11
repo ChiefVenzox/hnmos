@@ -24,6 +24,8 @@ static struct hnm_ui_button hnm_launcher_items[HNM_LAUNCHER_ITEM_COUNT];
 static int hnm_launcher_pressed_index;
 static int hnm_launcher_ready;
 
+static void hnm_launcher_render_ai_studio_icon(void);
+
 static void hnm_launcher_label(u32 x, u32 y, const char *text, hnm_color fg, hnm_color bg)
 {
     struct hnm_ui_label label;
@@ -45,7 +47,7 @@ static void hnm_launcher_render_top_bar(void)
     hnm_launcher_label(32, 18, "HNMos", hnm_launcher_theme->text, hnm_launcher_theme->top_bar);
     hnm_launcher_label(32, 42, "Current screen:", hnm_launcher_theme->muted_text, hnm_launcher_theme->top_bar);
     hnm_launcher_label(160, 42, ui_current_screen_name(), hnm_launcher_theme->text, hnm_launcher_theme->top_bar);
-    hnm_launcher_label(256, 42, "1 Terminal 2 System 3 Memory 5 AI 4 Shutdown F1 Help", hnm_launcher_theme->accent_alt, hnm_launcher_theme->top_bar);
+    hnm_launcher_label(256, 42, "1 Terminal 2 System 3 Memory 5 AI Studio 4 Shutdown F1 Help", hnm_launcher_theme->accent_alt, hnm_launcher_theme->top_bar);
     hnm_launcher_label(fb->width > 248 ? fb->width - 248 : 32, 18, "tick: no timer yet", hnm_launcher_theme->muted_text, hnm_launcher_theme->top_bar);
 }
 
@@ -76,6 +78,22 @@ static void hnm_launcher_render_items(void)
     for (u32 i = 0; i < HNM_LAUNCHER_ITEM_COUNT; i++) {
         hnm_ui_button_render(&hnm_launcher_items[i]);
     }
+
+    hnm_launcher_render_ai_studio_icon();
+}
+
+static void hnm_launcher_render_ai_studio_icon(void)
+{
+    const struct hnm_ui_rect *rect = &hnm_launcher_items[HNM_LAUNCHER_ITEM_AI].rect;
+    u32 icon_x = rect->x + 12;
+    u32 icon_y = rect->y + 12;
+
+    hnm_draw_fill_rect(icon_x, icon_y, 32, 32, hnm_launcher_theme->background);
+    hnm_draw_rect(icon_x, icon_y, 32, 32, hnm_launcher_theme->accent);
+    hnm_draw_fill_rect(icon_x + 5, icon_y + 6, 4, 20, hnm_launcher_theme->accent_alt);
+    hnm_draw_fill_rect(icon_x + 13, icon_y + 7, 13, 3, hnm_launcher_theme->text);
+    hnm_draw_fill_rect(icon_x + 13, icon_y + 14, 10, 3, hnm_launcher_theme->muted_text);
+    hnm_draw_fill_rect(icon_x + 13, icon_y + 21, 14, 3, hnm_launcher_theme->accent_alt);
 }
 
 static void hnm_launcher_render_home(void)
@@ -113,7 +131,7 @@ static void hnm_launcher_render_home(void)
     hnm_launcher_set_item(HNM_LAUNCHER_ITEM_TERMINAL, left_x, top_y, button_width, button_height, "1 Terminal");
     hnm_launcher_set_item(HNM_LAUNCHER_ITEM_SYSTEM, right_x, top_y, button_width, button_height, "2 System");
     hnm_launcher_set_item(HNM_LAUNCHER_ITEM_MEMORY, left_x, middle_y, button_width, button_height, "3 Memory");
-    hnm_launcher_set_item(HNM_LAUNCHER_ITEM_AI, right_x, middle_y, button_width, button_height, "5 AI Panel");
+    hnm_launcher_set_item(HNM_LAUNCHER_ITEM_AI, right_x, middle_y, button_width, button_height, "5 AI Studio");
     hnm_launcher_set_item(HNM_LAUNCHER_ITEM_SHUTDOWN, center_x, bottom_y, button_width, button_height, "4 Shutdown");
     hnm_launcher_render_items();
     hnm_launcher_label(panel_x + 40, panel_y + panel_height - 40, "terminal and serial debug stay available", hnm_launcher_theme->muted_text, hnm_launcher_theme->panel);
@@ -130,8 +148,8 @@ static void hnm_launcher_open(enum hnm_screen_id screen)
         hnm_log_write_line("launcher: system screen opened.");
     } else if (screen == SCREEN_MEMORY) {
         hnm_log_write_line("launcher: memory screen opened.");
-    } else if (screen == SCREEN_AI_PANEL_RESERVED) {
-        hnm_log_write_line("launcher: AI panel opened.");
+    } else if (screen == SCREEN_AI_STUDIO) {
+        hnm_log_write_line("launcher: AI Studio opened.");
     }
 }
 
@@ -150,7 +168,7 @@ static void hnm_launcher_activate_item(u32 index)
     } else if (index == HNM_LAUNCHER_ITEM_MEMORY) {
         hnm_launcher_open(SCREEN_MEMORY);
     } else if (index == HNM_LAUNCHER_ITEM_AI) {
-        hnm_launcher_open(SCREEN_AI_PANEL_RESERVED);
+        hnm_launcher_open(SCREEN_AI_STUDIO);
     } else if (index == HNM_LAUNCHER_ITEM_SHUTDOWN) {
         hnm_launcher_shutdown();
     }
@@ -179,7 +197,7 @@ static int hnm_launcher_handle_shortcut(char character)
     }
 
     if (character == '5') {
-        hnm_launcher_open(SCREEN_AI_PANEL_RESERVED);
+        hnm_launcher_open(SCREEN_AI_STUDIO);
         return 1;
     }
 

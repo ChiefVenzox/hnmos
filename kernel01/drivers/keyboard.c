@@ -26,6 +26,7 @@ static char hnm_keyboard_scancode_to_char(u8 scancode)
         [0x0A] = '9',
         [0x0B] = '0',
         [0x0C] = '-',
+        [0x0D] = '=',
         [0x10] = 'q',
         [0x11] = 'w',
         [0x12] = 'e',
@@ -60,6 +61,29 @@ static char hnm_keyboard_scancode_to_char(u8 scancode)
     return keymap[scancode];
 }
 
+static int hnm_keyboard_shift_pressed;
+
+static char hnm_keyboard_apply_shift(char character)
+{
+    if (!hnm_keyboard_shift_pressed) {
+        return character;
+    }
+
+    if (character >= 'a' && character <= 'z') {
+        return (char)(character - ('a' - 'A'));
+    }
+
+    if (character == '-') {
+        return '_';
+    }
+
+    if (character == '=') {
+        return '+';
+    }
+
+    return character;
+}
+
 static void hnm_keyboard_push_key_down(u8 scancode, u32 key_code, char character)
 {
     struct hnm_ui_event event;
@@ -87,6 +111,17 @@ static void hnm_keyboard_handle_scancode(u8 scancode)
     char character;
 
     if ((scancode & 0x80) != 0) {
+        u8 released_scancode = scancode & 0x7F;
+
+        if (released_scancode == 0x2A || released_scancode == 0x36) {
+            hnm_keyboard_shift_pressed = 0;
+        }
+
+        return;
+    }
+
+    if (scancode == 0x2A || scancode == 0x36) {
+        hnm_keyboard_shift_pressed = 1;
         return;
     }
 
@@ -110,7 +145,7 @@ static void hnm_keyboard_handle_scancode(u8 scancode)
         return;
     }
 
-    character = hnm_keyboard_scancode_to_char(scancode);
+    character = hnm_keyboard_apply_shift(hnm_keyboard_scancode_to_char(scancode));
 
     if (character != '\0') {
         hnm_keyboard_push_key_down(scancode, (u32)character, character);
@@ -120,6 +155,8 @@ static void hnm_keyboard_handle_scancode(u8 scancode)
 
 void hnm_keyboard_init(void)
 {
+    hnm_keyboard_shift_pressed = 0;
+
     while ((hnm_inb(HNM_KEYBOARD_STATUS_PORT) & HNM_KEYBOARD_STATUS_OUTPUT_FULL) != 0) {
         (void)hnm_inb(HNM_KEYBOARD_DATA_PORT);
     }

@@ -30,6 +30,7 @@ void hnm_fs_init(void);
 int hnm_fs_is_ready(void);
 int hnm_fs_read(const char *path, const struct hnm_fs_node **node);
 int hnm_fs_list(const char *path, struct hnm_fs_list *list);
+int hnm_fs_write_hnlang_draft(const char *path, const char *data);
 u32 hnm_fs_node_count(void);
 const char *hnm_fs_node_type_name(enum hnm_fs_node_type type);
 

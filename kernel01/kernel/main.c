@@ -46,7 +46,7 @@ void hnm_kernel_main(u32 multiboot_magic, u32 multiboot_info_addr)
     hnm_log_init();
 
     hnm_log_write_line("HNMos Kernel 01 initialized.");
-    hnm_log_write_line("AI-native operating layer will be loaded later.");
+    hnm_log_write_line("AI-native provider bridge will load on COM2.");
     hnm_log_write_line("HNMos v0.0.1 demo boot.");
     hnm_log_write_line("");
     hnm_log_write_line("boot mode: bare-metal kernel");
@@ -84,10 +84,10 @@ void hnm_kernel_main(u32 multiboot_magic, u32 multiboot_info_addr)
     hnm_log_write_line("");
     hnm_log_write_line("console: minimal output console ready.");
     hnm_log_write_line("hnshell: offline demo stub ready.");
-    hnm_log_write_line("ai-runtime: OS interface stub ready; no model loaded.");
+    hnm_log_write_line("ai-runtime: COM2 external provider bridge ready.");
     hnm_log_write_line("sync-runtime: cpu/ram/framebuffer checkpoint interface ready.");
     hnm_log_write_line("task-demo: hn status -> Kernel 01 idle.");
-    hnm_log_write_line("task-demo: hn ai status -> AI runtime stub offline.");
+    hnm_log_write_line("task-demo: hn ai status -> external provider status.");
     hnm_log_write_line("task-demo: hn task list -> demo task queue empty.");
 
     if (!graphics_ready) {
@@ -106,10 +106,18 @@ void hnm_kernel_main(u32 multiboot_magic, u32 multiboot_info_addr)
     hnm_log_write_line("terminal: hnmos terminal available.");
 
     for (;;) {
+        int ai_response_ready;
+
         hnm_interrupts_disable();
         hnm_cursor_hide();
         hnm_input_dispatcher_dispatch(hnm_kernel_handle_input_event);
         hnm_mouse_poll();
+        ai_response_ready = hnm_ai_bridge_poll();
+
+        if (ai_response_ready && ui_current_screen() == SCREEN_AI_STUDIO) {
+            ui_render_current_screen();
+        }
+
         hnm_cursor_show_current();
         hnm_scheduler_yield();
         __asm__ volatile ("sti; hlt");

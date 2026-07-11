@@ -1,5 +1,16 @@
 # HNMos Release Notes
 
+## Unreleased - AI Studio
+
+- Launcher'a IDE ikonlu `5 AI Studio` girisi eklendi.
+- Subscription OAuth/device-login ve maskeli, gecici API-key yuzeyi eklendi.
+- AI credential'larindan bagimsiz deny-by-default workspace policy eklendi.
+- HNLang icin typed primitive ve bounded recipe katalogu eklendi.
+- `/workspace/*.hn` disindaki AI yazma hedefleri ve kernel/boot/policy/driver/audit yetkileri reddedildi.
+- Network ve workspace build istekleri kullanici onayina baglandi.
+
+Kernel 01 dogrudan TCP/TLS yigini icermese de QEMU gelistirme ortaminda COM2 uzerinden host bridge'e baglanir. Bridge, OpenAI Responses API HTTPS istegini yapar ve sonucu policy kontrollu `/workspace/main.hn` RAM taslagina geri yollar.
+
 ## v0.0.1 - Kernel 01 Demo
 
 HNMos v0.0.1, QEMU uzerinde boot eden ilk bare-metal demo surumudur.

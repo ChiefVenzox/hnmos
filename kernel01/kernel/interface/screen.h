@@ -8,7 +8,7 @@ enum hnm_screen_id {
     SCREEN_TERMINAL,
     SCREEN_SYSTEM,
     SCREEN_MEMORY,
-    SCREEN_AI_PANEL_RESERVED,
+    SCREEN_AI_STUDIO,
     SCREEN_COUNT
 };
 

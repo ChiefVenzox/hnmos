@@ -1,16 +1,26 @@
-# hnmos
+# HNMos
 
-HNMos, AI destekli, gorev odakli ve sifirdan gelistirilen deneysel bir bare-metal isletim sistemi projesidir.
+HNMos is an experimental, task-oriented bare-metal operating system built from scratch with an AI-assisted development workflow.
 
-Bu repo Windows/Linux/macOS uzerinde calisan bir prototip uygulama icin kurulmaz. Gelistirme bilgisayari yalnizca kod yazmak, compiler/assembler/linker calistirmak, boot edilebilir imaj uretmek ve QEMU testleri yapmak icin kullanilir.
+This repository is not a desktop application that runs on Windows, Linux, or macOS. The host computer is used only to edit source code, run the compiler, assembler, and linker, build bootable images, and test the operating system in QEMU. The resulting artifacts are a freestanding kernel ELF and a bootable ISO intended for QEMU today and physical hardware in the future.
 
-Uretilen cikti bir masaustu uygulamasi degil, QEMU'da ve ileride gercek donanimda boot edilebilecek HNMos kernel/imaj ciktisidir.
+## Project Goal
 
-## Hedef
+HNMOS-CODEX-14 establishes the first demonstrable HNMos release and the foundation of Kernel 01. The project boots as a real bare-metal system, initializes its own graphics and input stack, exposes a kernel launcher, and provides a controlled AI Studio integration for HNLang development.
 
-HNMOS-CODEX-14'un hedefi, HNMos v0.0.1 ilk demo surumunu hazirlamaktir. Demo Windows/Linux/macOS uzerinde calisan uygulama koleksiyonu degil, QEMU uzerinde boot eden gercek bare-metal Kernel 01 baslangicidir.
+## Current Highlights
 
-## Dosya Yapisi
+- Multiboot-compatible 32-bit x86 kernel written in C and assembly.
+- 1024x768x32 framebuffer graphics with a kernel-side launcher and UI primitives.
+- PS/2 keyboard and mouse input through IRQ-driven event handling.
+- Physical memory management, an early heap, a RAM filesystem, and a VFS skeleton.
+- HNShell commands and a cooperative task registry.
+- AI Studio launcher application with an HNLang editor.
+- User-supplied OpenAI API credentials transferred through a host bridge without being compiled into the kernel or committed to the repository.
+- A deny-by-default AI policy that limits generated changes to the writable HNLang workspace.
+- A compact HNLang AI profile with reusable combinators for efficient program generation.
+
+## Repository Layout
 
 ```text
 hnmos/
@@ -19,11 +29,17 @@ hnmos/
 |-- Makefile
 |-- build.sh
 |-- run-qemu.sh
+|-- run-qemu-ai.sh
 |-- linker.ld
 |-- docs/
 |-- kernel01/
 |   |-- boot/
 |   |-- kernel/
+|   |   |-- ai/
+|   |   |-- graphics/
+|   |   |-- interface/
+|   |   |-- memory/
+|   |   `-- task/
 |   |-- console/
 |   |-- memory/
 |   |-- interrupts/
@@ -69,11 +85,13 @@ hnmos/
 |   |-- templates/
 |   `-- examples/
 |-- tools/
+|   |-- ai/
 |   |-- toolchain/
 |   |-- qemu/
 |   |-- image/
 |   `-- test/
 |-- examples/
+|   |-- hnlang/
 |   |-- hn-notes/
 |   |-- hn-monitor/
 |   |-- hn-ai-lab/
@@ -90,110 +108,81 @@ hnmos/
     `-- workflows/
 ```
 
-## Klasorlerin Amaci
+## Directory Guide
 
-- `docs/`: mimari, build, boot image ve katkida bulunma belgeleri.
-- `RELEASE_NOTES.md`: v0.0.1 ve sonraki surum notlari.
-- `kernel01/`: ilk boot eden bare-metal HNMos cekirdegi.
-- `kernel01/boot/`: Multiboot header, entry point ve erken stack kurulumu.
-- `kernel01/kernel/`: `main.c`, `log.*`, `panic.*` ve ilk cekirdek fonksiyonlari.
-- `kernel01/kernel/interface/`: erken UI/input event queue ve dispatcher.
-- `kernel01/kernel/interface/widgets/`: panel, label, button ve window primitive'leri.
-- `kernel01/kernel/interface/screens/`: launcher icin internal kernel screen'leri.
-- `kernel01/kernel/memory/`: Multiboot memory map, PMM ve erken kernel heap.
-- `kernel01/kernel/task/`: kernel-side task registry ve cooperative scheduler skeleton.
-- `kernel01/console/`: erken kernel console, prompt ve console I/O tasarimi.
-- `kernel01/memory/`: fiziksel/sanal bellek yonetimi icin ayrilan alan.
-- `kernel01/interrupts/`: GDT, IDT, exception ve IRQ kodlari icin ayrilan alan.
-- `kernel01/timer/`: PIT, tick sayaci ve timer interrupt altyapisi icin ayrilan alan.
-- `kernel01/scheduler/`: kernel task ve round-robin scheduler taslagi icin ayrilan alan.
-- `kernel01/syscalls/`: uzun vadeli user-space syscall kapisi icin ayrilan alan.
-- `kernel01/events/`: uzun vadeli driver event alanidir; mevcut erken UI/input queue `kernel01/kernel/interface/` altindadir.
-- `kernel01/drivers/`: VGA, klavye, disk gibi ilk surucu kodlari icin ayrilan alan.
-- `kernel01/fs/`: initramfs, basit FS ve Knowledge FS altyapisi icin ayrilan alan.
-- `kernel01/fs/metadata/`: kernel seviyesinde guvenli dosya metadata modeli.
-- `shell/`: HNShell kaynaklari. Uzun vadede user-space sistem yuzudur.
-- `shell/hnshell/`: HNShell oturum ve runtime cekirdegi.
-- `shell/parser/`: komut satiri parser ve token modeli.
-- `shell/commands/`: built-in `hn ...` komutlari.
-- `shell/commands/events/`: `hn event ...` komutlari.
-- `shell/task_router/`: komutlari gorev isteklerine ceviren gecis katmani.
-- `ai/`: AI Runtime Interface kaynaklari. AI kernel icine gomulmez; OS arayuzu olarak tasarlanir.
-- `ai/runtime_interface/`: HNShell/Task Engine ile model runtime arasindaki AI servis kapisi.
-- `ai/task_engine/`: kullanici niyetini izlenebilir gorev kayitlarina ceviren katman.
-- `ai/context_router/`: AI'ye verilecek izinli sistem baglamini sinirlayan katman.
-- `ai/safety_layer/`: izin, risk ve execution politikalarini uygulayan katman.
-- `ai/permission_manifest/`: task, HNShell ve HNLang icin izin manifestleri.
-- `ai/action_audit/`: kritik eylem, kullanici onayi ve policy karar loglari.
-- `ai/policy_engine/`: capability, risk ve approval kararlarini ureten katman.
-- `ai/model_runtime_spec/`: gelecekteki local model runtime adapter sozlesmesi.
-- `ai/memory_index/`: Knowledge FS arama ve semantic memory index hedefi.
-- `ai/semantic_fs/`: AI Runtime Interface icin semantic FS sorgu arayuzu.
-- `ai/indexer/`: metadata, ozet ve etiketlerden index uretecek user-space hedefi.
-- `ai/event_reader/`: AI icin izinli ve sanitize edilmis event snapshot okuyucu.
-- `lang/`: HNLang kaynaklari. Gorev odakli sistem dili burada gelisir.
-- `lang/hnlang/`: HNLang ana dil cekirdegi.
-- `lang/hnlang/parser/`: lexer, parser, token ve AST/IR hedefleri.
-- `lang/hnlang/repl/`: HNShell icinden acilacak minimal REPL hedefi.
-- `lang/hnlang/runtime/`: task IR'i Core OS servislerine yonlendirecek runtime hedefi.
-- `ui/`: HNMos'un kendi UI deneyleri; host UI prototipi degildir.
-- `ui/console/`: erken text-mode UI, HNShell prompt ve status line hedefi.
-- `ui/framebuffer/`: pixel tabanli cizim, font render ve framebuffer console hedefi.
-- `ui/window_manager/`: uzun vadeli pencere, focus ve compositor modeli.
-- `ui/command_palette/`: gorev odakli kullanici niyet girisi.
-- `ui/assistant_panel/`: AI Runtime Interface icin guvenli panel yuzeyi.
-- `ui/task_monitor/`: Visual Task Monitor icin gorev durumu ve event gorunumu.
-- `sdk/`: HNMos uzerinde calisacak uygulamalar icin SDK tasarim alani.
-- `sdk/templates/`: app manifest ve uygulama sablonlari.
-- `sdk/examples/`: SDK referans ornekleri.
-- `tools/`: toolchain, QEMU ve image uretim yardimcilari.
-- `tools/test/`: statik dogrulama, QEMU smoke ve CI test yardimcilari.
-- `examples/`: HNLang, HNShell, SDK uygulamalari ve sistem davranisi ornekleri.
-- `examples/hn-notes/`: not, metadata ve ozetleme odakli app hedefi.
-- `examples/hn-monitor/`: sistem status, event snapshot ve task monitor app hedefi.
-- `examples/hn-ai-lab/`: AI Runtime Interface icin guvenli deney app hedefi.
-- `examples/demo_task.hn`: v0.0.1 demo gorev ornegi.
-- `scripts/`: demo ve release yardimci scriptleri.
-- `scripts/demo.sh`: v0.0.1 build, verify ve QEMU demo yardimcisi.
-- `tests/`: build, imaj, kernel, shell, AI, HNLang ve Knowledge FS testleri.
-- `tests/kernel/`: kernel boot, panic ve low-level behavior test hedefleri.
-- `tests/shell/`: HNShell parser ve komut test hedefleri.
-- `tests/ai/`: AI Runtime Interface ve permission test hedefleri.
-- `tests/hnlang/`: HNLang parser ve REPL test hedefleri.
-- `tests/knowledge_fs/`: Knowledge FS metadata test hedefleri.
-- `.github/workflows/`: CI workflow ornekleri.
+- `docs/` contains architecture, build, boot image, subsystem, and contribution documentation.
+- `kernel01/` contains the first bootable HNMos kernel.
+- `kernel01/boot/` contains the Multiboot header, entry point, and early stack setup.
+- `kernel01/kernel/` contains the active kernel implementation, logging, panic handling, and core services.
+- `kernel01/kernel/ai/` contains the AI session, serial protocol, HNLang profile, workspace policy, and provider-response handling.
+- `kernel01/kernel/graphics/` contains the framebuffer, font, drawing primitives, graphical console, and cursor implementation.
+- `kernel01/kernel/interface/` contains the early UI/input event queue and dispatcher.
+- `kernel01/kernel/interface/widgets/` contains panel, label, button, and window primitives.
+- `kernel01/kernel/interface/screens/` contains launcher applications, including AI Studio.
+- `kernel01/kernel/memory/` contains Multiboot memory-map parsing, the physical memory manager, and the early heap.
+- `kernel01/kernel/task/` contains the kernel task registry and cooperative scheduler skeleton.
+- `kernel01/interrupts/` contains GDT, IDT, exception, and IRQ support.
+- `kernel01/fs/` contains the RAM filesystem, VFS skeleton, and secure metadata model.
+- `shell/` contains HNShell, its parser, built-in commands, and the task-routing layer.
+- `ai/` defines the long-term AI Runtime Interface. AI providers are treated as external services, not trusted kernel components.
+- `lang/hnlang/` contains the parser, REPL, and runtime foundations for the HNLang task-oriented system language.
+- `ui/` contains HNMos-native UI design areas rather than host application prototypes.
+- `sdk/` contains application templates and reference examples for future HNMos applications.
+- `tools/ai/` contains the host-side OpenAI bridge.
+- `tools/qemu/` contains standard and AI-enabled QEMU launch helpers.
+- `tools/test/` contains static checks, policy tests, QEMU smoke tests, and CI helpers.
+- `examples/` contains HNLang programs, SDK application concepts, and system behavior examples.
+- `tests/` contains kernel, shell, AI, HNLang, and Knowledge FS test targets.
+- `.github/workflows/` contains continuous-integration workflows.
 
-## Build Komutlari
+## Prerequisites
 
-Toolchain kontrolu:
+The default cross-compilation prefix is `i686-elf-`. A complete build generally requires:
+
+- an i686 ELF GCC toolchain;
+- GNU binutils for the same target;
+- GRUB utilities for ISO generation;
+- `xorriso`;
+- QEMU with `qemu-system-i386`;
+- Python 3 for the optional AI provider bridge.
+
+Run the toolchain check before building:
 
 ```sh
 make check-tools
 ./build.sh tools
 ```
 
-Kernel ELF uretimi:
+You may override the compiler prefix when using a compatible local toolchain:
+
+```sh
+make CROSS_COMPILE=i686-elf-
+```
+
+## Build and Run
+
+Build the kernel ELF:
 
 ```sh
 make kernel
 ./build.sh kernel
 ```
 
-Boot edilebilir ISO imaji uretimi:
+Build the bootable ISO:
 
 ```sh
 make image
 ./build.sh image
 ```
 
-Statik kernel dogrulamasi:
+Run static verification:
 
 ```sh
 make verify
 ./build.sh verify
 ```
 
-QEMU ile dogrudan kernel boot testi:
+Boot the kernel directly in QEMU:
 
 ```sh
 make run-kernel
@@ -201,54 +190,105 @@ make run-kernel
 ./tools/qemu/run.sh kernel build/hnmos-kernel01.elf
 ```
 
-QEMU ile ISO boot testi:
+Boot the ISO in QEMU:
 
 ```sh
 make run
 ./run-qemu.sh image
 ```
 
-## Framebuffer Graphics
+Run the AI Studio development environment:
 
-HNMOS-CODEX-02 ile Kernel 01 ilk framebuffer grafik katmanina sahiptir. Kernel hala bare-metal Multiboot akisi ile boot eder; host sistem sadece derleme ve QEMU testi icindir.
-
-Grafik modu `kernel01/boot/boot.s` icindeki Multiboot video flag'i ile 1024x768x32 olarak istenir. ISO yolunda `tools/image/grub.cfg`, `gfxmode=1024x768x32,auto` ve `gfxpayload=keep` kullanir. QEMU'nun dogrudan `-kernel` Multiboot yukleyicisi VBE framebuffer bilgisini vermediginde kernel dar kapsamli QEMU/Bochs BGA fallback yolunu dener.
-
-Framebuffer katmani su dosyalardadir:
-
-```text
-kernel01/kernel/graphics/
-|-- color.*
-|-- framebuffer.*
-|-- primitive.*
-|-- font.*
-|-- console_graphics.*
-`-- cursor.*
+```sh
+export OPENAI_API_KEY="your-api-key"
+export OPENAI_MODEL="gpt-5.4-mini"
+./run-qemu-ai.sh
 ```
 
-Mevcut ozellikler:
+The API key is read by the host-side bridge at runtime. Never place a real key in source files, `.env.example`, shell scripts, screenshots, issue descriptions, or commits. Local `.env` files and common credential formats are ignored by Git.
 
-- Framebuffer address, width, height, pitch ve bpp ilklendirme.
-- `put_pixel`, `clear_screen`, `fill_rect`, `draw_rect` seviyesinde pixel cizimi.
-- RGB renk yardimcilari.
-- 8x8 bitmap font ile framebuffer uzerine karakter ve string cizimi.
-- Cursor, newline, satir sonu ve basit scroll davranisina sahip grafik console.
-- Koyu arka plan, HNMos v0.3 boot metni, status satirlari ve renkli dikdortgenlerden olusan grafik boot ekrani.
-- PS/2 klavye IRQ1 input ve `hnmos>` grafik terminal promptu.
-- PS/2 mouse IRQ12 input, framebuffer cursor cizimi ve mouse koordinat status alani.
-- Keyboard ve mouse icin kernel-side UI event queue ve input dispatcher.
-- Kernel-side UI primitive demo: top bar, panel, labels, buttons ve window/box.
-- HNMos launcher ekrani: Terminal, System, Memory ve Shutdown item'lari.
-- Multiboot memory map tabanli PMM, page allocation ve page-backed bump heap.
-- Read-only RAM filesystem ve VFS iskeleti: `/system/version`, `/system/info`, `/readme.txt`.
-- Kernel-side task registry ve cooperative scheduler skeleton.
-- `help`, `version`, `clear`, `halt`, `reboot`, `ls`, `cat`, `tasks` komutlari.
-- Framebuffer degerlerinin COM1 serial log'a yazilmasi.
-- Framebuffer yoksa mevcut idle/halt fallback akisi.
+## AI Studio
 
-QEMU'da beklenen sonuc: koyu bir ekran uzerinde `HNMos v0.3`, `Graphical Console Online`, `Kernel: OK`, `Framebuffer: Ready`, `Font: Ready` metinleri ve yesil/sari/cyan/mor renkli dikdortgenler gorunur.
+AI Studio is available from the kernel launcher as an IDE-style application. It provides a prompt area, an HNLang source editor, provider status, and a controlled apply flow.
 
-Daha ayrintili notlar icin:
+The development integration uses this path:
+
+```text
+AI Studio in HNMos
+        |
+        | HNAI1 framed messages over COM2
+        v
+Host-side Python bridge
+        |
+        | OpenAI Responses API over HTTPS
+        v
+Configured OpenAI model
+        |
+        | generated HNLang candidate
+        v
+Kernel policy validation
+        |
+        v
+/workspace/main.hn in RAM
+```
+
+Security boundaries:
+
+- API credentials are supplied at runtime and are never stored in the repository or kernel image.
+- The bridge does not grant the model direct kernel, disk, shell, or host access.
+- Provider output is treated as untrusted input.
+- Generated content passes size, path, and policy validation before it can be applied.
+- The writable target is limited to `/workspace/main.hn`.
+- Kernel, boot, driver, policy, audit, and system paths are denied.
+- AI operations are intended to accelerate programming and routine tasks, not modify HNMos security boundaries.
+
+The current bridge is intended for development under QEMU. A future production implementation should use a dedicated network stack, encrypted credential storage, explicit capability grants, stronger isolation, and a complete audit interface.
+
+See the following documents for details:
+
+```text
+docs/AI_INTEGRATION.md
+docs/AI_PROVIDER_BRIDGE.md
+docs/AI_PERMISSION_LAYER.md
+docs/HNLANG_AI_PROFILE.md
+docs/HNLANG_AI_STUDIO.md
+```
+
+## HNLang and AI Generation
+
+HNLang is the task-oriented language presented to the AI provider as the preferred HNMos programming language. Its AI profile favors compact, deterministic source code and reusable combinators so that many behaviors can be composed without giving the model unrestricted system authority.
+
+The profile defines:
+
+- a constrained grammar and canonical formatting rules;
+- task, pipeline, guard, action, and composition patterns;
+- reusable combinators for sequencing, branching, mapping, filtering, retrying, and fallback behavior;
+- policy-aware generation instructions;
+- a workspace-only output contract;
+- examples that can be used as few-shot context by provider adapters.
+
+Example sources are available under `examples/hnlang/`.
+
+## Framebuffer Graphics
+
+Kernel 01 requests a 1024x768x32 graphics mode through the Multiboot video flag in `kernel01/boot/boot.s`. The ISO path uses `gfxmode=1024x768x32,auto` and `gfxpayload=keep` in `tools/image/grub.cfg`. When QEMU's direct Multiboot loader does not provide VBE framebuffer information, the kernel attempts a narrow QEMU/Bochs BGA fallback.
+
+The graphics layer currently provides:
+
+- framebuffer address, width, height, pitch, and bits-per-pixel initialization;
+- pixel, rectangle, border, and screen-clear primitives;
+- RGB color helpers;
+- 8x8 bitmap-font text rendering;
+- a graphical console with cursor, newline, wrapping, and basic scrolling;
+- PS/2 keyboard input and a graphical `hnmos>` terminal prompt;
+- PS/2 mouse input, an on-screen cursor, and pointer status;
+- a kernel-side UI event queue and input dispatcher;
+- top bar, panels, labels, buttons, windows, and launcher tiles;
+- launcher entries for Terminal, System, Memory, AI Studio, and Shutdown;
+- framebuffer diagnostics written to the COM1 serial log;
+- a safe idle fallback when no framebuffer is available.
+
+Additional subsystem documentation:
 
 ```text
 docs/FRAMEBUFFER_GRAPHICS.md
@@ -263,48 +303,58 @@ docs/FILESYSTEM.md
 docs/TASKS.md
 ```
 
-## Linker Script Mantigi
+## Filesystem and Tasks
 
-`linker.ld`, Kernel 01 imajini 1 MiB adresinden baslatir. Multiboot header ilk bolumde tutulur, ardindan `.text`, `.rodata`, `.data` ve `.bss` bolumleri hizalanir.
+The early RAM filesystem exposes system information such as `/system/version`, `/system/info`, and `/readme.txt`. AI Studio additionally uses the writable in-memory file `/workspace/main.hn`. This workspace is deliberately narrow and does not imply general write access to system files.
 
-Bu dosya host uygulamasi linklemek icin degil, bootloader tarafindan yuklenecek freestanding kernel ELF dosyasini olusturmak icindir.
+The kernel also contains a task registry and a cooperative scheduler foundation. Current HNShell commands include `help`, `version`, `clear`, `halt`, `reboot`, `ls`, `cat`, and `tasks`.
 
-## Boot Image Mantigi
+## Linker Script
 
-Ana kernel ciktisi:
+`linker.ld` places the Kernel 01 image at the 1 MiB address. The Multiboot header is kept in the first section, followed by aligned `.text`, `.rodata`, `.data`, and `.bss` sections.
+
+The script creates a freestanding kernel ELF loaded by a bootloader; it does not link a host operating-system application.
+
+## Boot Artifacts
+
+Kernel ELF:
 
 ```text
 build/hnmos-kernel01.elf
 ```
 
-Boot edilebilir imaj ciktisi:
+Bootable ISO:
 
 ```text
 build/hnmos-kernel01.iso
 ```
 
-Bu kademede ISO uretimi icin GRUB Multiboot kullanilir. GRUB kalici HNMos boot mimarisinin son hali degil, erken Kernel 01'i QEMU'da boot ettirmek icin kullanilan gecici ve pratik boot aracidir.
+The current ISO uses GRUB Multiboot as a practical early-stage boot mechanism. GRUB is not necessarily the final HNMos boot architecture.
 
-## Ilk Commit Plani
+## Verification
 
-1. Repo iskeleti ve CODEX belgeleri.
-2. Kernel 01 boot, linker ve VGA cikisi.
-3. Toolchain kontrol scriptleri.
-4. Build, image ve QEMU calistirma komutlari.
-5. HNMOS-CODEX-09 icin Driver Event Layer tasarimi.
-6. HNMOS-CODEX-10 icin UI Layer tasarimi.
-7. HNMOS-CODEX-11 icin Security ve AI Permission Layer tasarimi.
-8. HNMOS-CODEX-12 icin SDK ve App Model tasarimi.
-9. HNMOS-CODEX-13 icin Test, Debug ve CI tasarimi.
-10. HNMOS-CODEX-14 icin HNMos v0.0.1 demo surum hazirligi.
+Run the focused AI and shell checks with:
 
-## HNMOS-CODEX-14 Tamamlanma Kriterleri
+```sh
+make check-ai-policy
+make check-ai-bridge
+make check-shell
+```
 
-- `hnmos` repo yapisi bare-metal OS gelistirme icin duzenlenmistir.
-- `RELEASE_NOTES.md`, `docs/DEMO.md` ve `docs/VERSION_0_0_1.md` hazirdir.
-- `examples/demo_task.hn` ve `scripts/demo.sh` hazirdir.
-- Kernel 01 boot logunda v0.0.1 demo, console, HNShell ve AI Runtime stub mesajlari vardir.
-- `./build.sh` Kernel 01 ELF uretir.
-- `make verify` Multiboot dogrulamasini gecer.
-- QEMU bulunan ortamda `./run-qemu.sh` Kernel 01'i boot eder.
-- v0.0.2 hedefleri belgelenmistir.
+Run the complete available verification suite with:
+
+```sh
+make verify
+```
+
+Some checks require the cross-toolchain, GRUB utilities, and QEMU listed under Prerequisites. A live provider request also requires a valid user-supplied API key and network access.
+
+## Development Status
+
+The repository currently covers the original Kernel 01 boot, graphics, input, memory, filesystem, task, shell, policy, SDK, test, and demo milestones. AI Studio extends that foundation with a real development-time provider path while preserving a small, explicit kernel trust boundary.
+
+The project remains experimental. Interfaces, disk formats, language syntax, security policy, and boot behavior may change while the architecture matures.
+
+## License and Contributions
+
+Review the repository license before redistributing the project. Contributions should keep credentials out of version control, preserve the freestanding build, document security-sensitive behavior, and include focused checks for policy or protocol changes.
