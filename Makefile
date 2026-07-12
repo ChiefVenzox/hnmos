@@ -75,13 +75,13 @@ BUILD_CONFIG_STAMP := $(OBJ_DIR)/.build-config-$(BUILD_CONFIG_ID)
 
 .DELETE_ON_ERROR:
 
-.PHONY: all kernel image iso run run-kernel clean check check-tools check-kernel-toolchain check-image-tools check-shell verify
+.PHONY: all kernel image iso run run-ai run-kernel clean check check-tools check-kernel-toolchain check-image-tools check-shell check-ai-policy check-ai-bridge verify
 
 all: kernel
 
 kernel: $(KERNEL_ELF)
 
-check: verify check-shell
+check: verify check-shell check-ai-policy check-ai-bridge
 
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
@@ -117,6 +117,9 @@ run-kernel: $(KERNEL_ELF)
 run: $(ISO_IMAGE)
 	./tools/qemu/run.sh image $(ISO_IMAGE)
 
+run-ai: $(KERNEL_ELF)
+	./tools/qemu/run-ai.sh $(KERNEL_ELF)
+
 check-tools:
 	@HNM_CC="$(CC)" HNM_ARCH_FLAGS="$(ARCH_FLAGS)" HNM_CPU_FLAGS="$(KERNEL_CPU_FLAGS)" ./tools/toolchain/check.sh
 
@@ -130,6 +133,12 @@ check-image-tools:
 
 check-shell:
 	@./tools/test/shell-compat.sh
+
+check-ai-policy:
+	@./tools/test/ai-policy-check.sh
+
+check-ai-bridge:
+	@python3 ./tools/ai/openai_bridge.py --self-test
 
 verify: $(KERNEL_ELF)
 	@NM="$(NM)" OBJDUMP="$(OBJDUMP)" ./tools/test/kernel-abi-check.sh $(KERNEL_ELF)

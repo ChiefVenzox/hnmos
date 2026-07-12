@@ -107,7 +107,7 @@ Ilk hedef PIT olmalidir:
 HNMOS-CODEX-04 ve HNMOS-CODEX-05 ile planin dar bir parcasi uygulanmistir:
 
 - `kernel01/interrupts/interrupts.*`: IDT, PIC remap ve IRQ1/IRQ12 unmask.
-- `kernel01/interrupts/isr.s`: IRQ1 keyboard ve IRQ12 mouse assembly stub'lari.
+- `kernel01/interrupts/isr.s`: IRQ1 keyboard, IRQ3 AI COM2 ve IRQ12 mouse assembly stub'lari.
 - `kernel01/drivers/keyboard.*`: PS/2 scancode okuma ve UI event push.
 - `kernel01/drivers/mouse.*`: PS/2 mouse paket okuma ve cursor state guncelleme.
 - `kernel01/kernel/interface/events.*`: keyboard ve mouse icin ortak sabit boyutlu UI event queue.
@@ -115,7 +115,7 @@ HNMOS-CODEX-04 ve HNMOS-CODEX-05 ile planin dar bir parcasi uygulanmistir:
 - `kernel01/console/terminal.*`: keyboard event poll ve grafik terminal.
 - `kernel01/kernel/graphics/cursor.*`: framebuffer cursor save/restore ve status cizimi.
 
-Bu uygulama sadece erken keyboard/mouse input icindir. CPU exception stublari, IRQ0 timer ve genel IRQ dispatcher hala TODO'dur.
+Bu uygulama erken keyboard/mouse input ve AI bridge COM2 response wakeup yolunu kapsar. CPU exception stublari, IRQ0 timer ve genel IRQ dispatcher hala TODO'dur.
 
 Gelistirme sirasi:
 

@@ -2,7 +2,7 @@
 
 ## Hedef
 
-HNMOS-CODEX-10 ile Kernel 01 ilk calisan dosya sistemi temelini alir. Bu katman host dosya sistemini kullanmaz ve Linux/macOS/Windows uzerinde calisan bir uygulama degildir; QEMU'da boot eden HNMos kernel'i icinde derlenmis, read-only RAM node'lari sunar.
+HNMOS-CODEX-10 ile Kernel 01 ilk calisan dosya sistemi temelini alir. Sistem node'lari read-only kalir; AI Studio icin `/workspace/main.hn` sinirli ve gecici bir writable RAM node'udur.
 
 ## Secilen Strateji
 
@@ -19,7 +19,7 @@ GRUB config henuz Multiboot module veya initrd tasimaz. ISO uretimi de yalnizca 
 ```text
 terminal
   -> VFS facade
-  -> built in read-only RAM filesystem
+  -> read-only system nodes + policy-gated HNLang workspace RAM node
 ```
 
 Initrd veya disk dosya sistemi bu batch'e dahil degildir.
@@ -59,6 +59,7 @@ Dinamik allocation yoktur. Tum node'lar static kernel verisidir.
 hnm_fs_init()
 hnm_fs_list(path, out_list)
 hnm_fs_read(path, out_node)
+hnm_fs_write_hnlang_draft(path, data)
 hnm_fs_node_count()
 ```
 
@@ -71,6 +72,8 @@ hnm_fs_node_count()
 |-- system/
 |   |-- version
 |   `-- info
+|-- workspace/
+|   `-- main.hn
 `-- readme.txt
 ```
 
@@ -79,6 +82,7 @@ Dosyalar:
 - `/system/version`
 - `/system/info`
 - `/readme.txt`
+- `/workspace/main.hn` (policy-gated writable RAM draft)
 
 ## Terminal Komutlari
 
@@ -90,6 +94,7 @@ ls /system
 cat /readme.txt
 cat /system/info
 cat /system/version
+cat /workspace/main.hn
 ```
 
 Relative path'ler terminal tarafindan kok dizine normalize edilir. Ornek: `cat readme.txt`, `/readme.txt` olarak okunur.
@@ -99,10 +104,10 @@ Relative path'ler terminal tarafindan kok dizine normalize edilir. Ornek: `cat r
 Launcher System screen artik filesystem node sayisini gosterir:
 
 ```text
-filesystem nodes: 5
+filesystem nodes: 7
 ```
 
-Bu, disk surucusu veya persistent storage anlamina gelmez. Yalnizca kernel icine gomulu read-only RAM node'lari sayilir.
+Bu, disk surucusu veya persistent storage anlamina gelmez. `/workspace/main.hn` reboot sirasinda sifirlanan RAM taslagidir; diger built-in node'lar read-only kalir.
 
 ## QEMU
 
@@ -128,7 +133,7 @@ Bu batch'te yoktur:
 - Disk surucusu.
 - FAT/ext veya baska gercek disk FS.
 - Initrd module yukleme.
-- Writable filesystem.
+- Persistent writable filesystem.
 - File descriptor veya userspace syscall modeli.
 - Metadata/Knowledge FS index.
 

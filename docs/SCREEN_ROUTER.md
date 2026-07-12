@@ -15,6 +15,7 @@ kernel01/kernel/interface/launcher.*
 kernel01/kernel/interface/screens/terminal_screen.*
 kernel01/kernel/interface/screens/system_screen.*
 kernel01/kernel/interface/screens/memory_screen.*
+kernel01/kernel/interface/screens/ai_studio_screen.*
 ```
 
 ## Screen ID'leri
@@ -24,10 +25,10 @@ SCREEN_LAUNCHER
 SCREEN_TERMINAL
 SCREEN_SYSTEM
 SCREEN_MEMORY
-SCREEN_AI_PANEL_RESERVED
+SCREEN_AI_STUDIO
 ```
 
-`SCREEN_AI_PANEL_RESERVED` CODEX-15 ile stub AI panelini gosterir. Bu panel gercek AI runtime veya LLM calistirmaz.
+`SCREEN_AI_STUDIO`, maskeli credential girisi, HNLang editoru ve deny-by-default workspace policy yuzeyini gosterir. QEMU gelistirme akisinda gercek provider istekleri COM2 ile `tools/ai/openai_bridge.py` uzerinden OpenAI Responses API'ye tasinir.
 
 ## Screen Interface
 
@@ -78,7 +79,7 @@ Launcher:
 1 = Terminal
 2 = System
 3 = Memory
-5 = AI Panel
+5 = AI Studio
 4 = Shutdown halt
 ```
 
@@ -88,11 +89,13 @@ Terminal disindaki System/Memory ekranlarinda mevcut kisayol davranisi korunur:
 1 = Terminal
 2 = System
 3 = Memory
-5 = AI Panel
+5 = AI Studio
 4 = Shutdown halt
 ```
 
 Terminal aktifken `1`-`4` normal terminal karakteridir.
+
+AI Studio aktifken global sayi kisayollari kapatilir; boylece maskeli API-key girisi navigation tarafindan kesilmez. `ESC` Studio'dan Launcher'a donerken gecici secret tamponunu sifirlar.
 
 ## Terminal Return Commands
 

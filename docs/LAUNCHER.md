@@ -57,7 +57,7 @@ Launcher ekraninda:
   - `1 Terminal`
   - `2 System`
   - `3 Memory`
-  - `5 AI Panel`
+  - `5 AI Studio` (IDE icon)
   - `4 Shutdown`
 
 Timer IRQ henuz olmadigi icin clock/tick alaninda gercek tick sayaci yoktur. Sistem ekraninda bu acikca `tick: no timer irq yet` olarak gosterilir.
@@ -73,7 +73,7 @@ SCREEN_LAUNCHER
 SCREEN_TERMINAL
 SCREEN_SYSTEM
 SCREEN_MEMORY
-SCREEN_AI_PANEL_RESERVED
+SCREEN_AI_STUDIO
 ```
 
 Router API:
@@ -96,7 +96,7 @@ Keyboard:
 2 = System
 3 = Memory
 4 = Shutdown
-5 = AI Panel
+5 = AI Studio
 ESC = Launcher'a don
 F1 = Help overlay
 ```
@@ -147,17 +147,17 @@ System screen su bilgileri gosterir:
 
 Timer henuz uygulanmadigi icin tick count yerine `no timer irq yet` yazilir.
 
-## AI Panel
+## AI Studio
 
-AI panel CODEX-15 ile stub provider durumunu gosterir:
+AI Studio, provider baglantisi, guvenli HNLang IDE onizlemesi ve workspace policy durumunu gosterir:
 
 ```text
-HNMos AI Panel
-status: Stub provider active
-Real AI runtime not enabled yet
+AI CONNECTION
+HN AI Studio | main.hn | HNLang AI profile
+Generate draft | Review | Build request
 ```
 
-Bu panel gercek LLM calistirmaz. `ESC` ile Launcher'a doner.
+API-key girisi maskelidir; key ozel COM2 bridge kanalina aktarildiktan sonra HNMos tamponu sifirlanir. `G`, kullanici promptunu gercek provider'a yollar ve cevap `/workspace/main.hn` RAM taslagina yazilir. ChatGPT aboneligi API yetkisi olarak kullanilmaz. AI yalnizca workspace taslagi uretebilir; HNMos kernel, boot, policy, driver ve audit alanlari reddedilir. Ayrintilar `docs/HNLANG_AI_STUDIO.md` icindedir. `ESC` ile Launcher'a doner.
 
 ## Memory Screen
 

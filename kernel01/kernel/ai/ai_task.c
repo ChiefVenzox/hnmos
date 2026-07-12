@@ -27,6 +27,7 @@ void hnm_ai_task_init(struct hnm_ai_task *task)
     task->task_id = 0;
     task->task_type = HNM_AI_TASK_NONE;
     task->input[0] = '\0';
+    task->language_profile = 0;
     task->context_flags = 0;
     task->status = AI_TASK_EMPTY;
     task->output[0] = '\0';
@@ -46,6 +47,7 @@ void hnm_ai_task_prepare(
     task->task_id = task_id;
     task->task_type = task_type;
     hnm_ai_copy_text(task->input, sizeof(task->input), input);
+    task->language_profile = 0;
     task->context_flags = context_flags;
     task->status = AI_TASK_PENDING;
     task->output[0] = '\0';
@@ -76,6 +78,10 @@ const char *hnm_ai_task_status_name(enum hnm_ai_task_status status)
 
     if (status == AI_TASK_DONE) {
         return "done";
+    }
+
+    if (status == AI_TASK_CANCELLED) {
+        return "cancelled";
     }
 
     if (status == AI_TASK_ERROR) {

@@ -16,6 +16,17 @@
 *.keystore
 credentials*.json
 secrets*.json
+service-account*.json
+.secrets/
+secrets/
+*.secret
+*.token
+*.credentials
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+*.mobileprovision
 
 # Build output
 /build/
@@ -52,6 +63,8 @@ Thumbs.db
 
 # Tooling caches
 .cache/
+__pycache__/
+*.pyc
 compile_commands.json
 tags
 cscope.*

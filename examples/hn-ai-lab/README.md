@@ -7,6 +7,9 @@ Ilk hedef:
 - AI context request ve permission manifest akisini test etmek.
 - Kullanici onayi olmadan dosya yazmamak, komut calistirmamak ve kernel seviyesine inmemek.
 - AI'nin sadece task onerisi urettigi guvenli bir lab yuzeyi sunmak.
+- Yalnizca `/workspace/*.hn` altinda review edilebilir HNLang taslaklari uretmek.
+- Build ve provider network isteklerini kullanici onayina baglamak.
+- Kernel, boot, policy, driver ve audit hedeflerini credential turunden bagimsiz olarak reddetmek.
 
 Calistirma hedefi:
 

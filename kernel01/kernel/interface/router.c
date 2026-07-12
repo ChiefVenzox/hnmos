@@ -1,12 +1,12 @@
 #include "router.h"
 #include "launcher.h"
+#include "screens/ai_studio_screen.h"
 #include "screens/memory_screen.h"
 #include "screens/system_screen.h"
 #include "screens/terminal_screen.h"
 #include "theme.h"
 #include "widgets/label.h"
 #include "widgets/panel.h"
-#include "../ai/ai_bridge.h"
 #include "../graphics/framebuffer.h"
 #include "../graphics/primitive.h"
 #include "../log.h"
@@ -20,111 +20,6 @@ enum {
 
 static enum hnm_screen_id hnm_router_current_screen = SCREEN_LAUNCHER;
 static int hnm_router_ready;
-
-static void hnm_router_reserved_init(void)
-{
-}
-
-static void hnm_router_reserved_render(void)
-{
-    const struct hnm_ui_theme *theme = hnm_ui_theme_default();
-    const struct hnm_framebuffer *fb = hnm_framebuffer_get();
-    struct hnm_ui_panel panel;
-    struct hnm_ui_label label;
-    u32 panel_width = 520;
-    u32 panel_height = 296;
-    u32 panel_x;
-    u32 panel_y = 152;
-
-    if (!hnm_framebuffer_is_available()) {
-        return;
-    }
-
-    hnm_draw_fill_rect(0, 84, fb->width, fb->height - 84, theme->background);
-    panel_x = fb->width > panel_width ? (fb->width - panel_width) / 2 : 24;
-
-    panel.rect.x = panel_x;
-    panel.rect.y = panel_y;
-    panel.rect.width = panel_width;
-    panel.rect.height = panel_height;
-    panel.background = theme->panel;
-    panel.border = theme->border;
-    hnm_ui_panel_render(&panel);
-
-    label.x = panel_x + 24;
-    label.y = panel_y + 32;
-    label.text = "HNMos AI Panel";
-    label.foreground = theme->text;
-    label.background = theme->panel;
-    hnm_ui_label_render(&label);
-
-    label.y = panel_y + 58;
-    label.text = "status: Stub provider active";
-    label.foreground = theme->muted_text;
-    hnm_ui_label_render(&label);
-
-    label.y = panel_y + 82;
-    label.text = "Real AI runtime not enabled yet";
-    label.foreground = theme->accent_alt;
-    hnm_ui_label_render(&label);
-
-    label.y = panel_y + 112;
-    label.text = "provider:";
-    label.foreground = theme->muted_text;
-    hnm_ui_label_render(&label);
-
-    label.x = panel_x + 112;
-    label.text = hnm_ai_bridge_provider_name();
-    label.foreground = theme->text;
-    hnm_ui_label_render(&label);
-
-    label.x = panel_x + 24;
-    label.y = panel_y + 136;
-    label.text = "provider type:";
-    label.foreground = theme->muted_text;
-    hnm_ui_label_render(&label);
-
-    label.x = panel_x + 144;
-    label.text = hnm_ai_bridge_provider_type_name();
-    label.foreground = theme->text;
-    hnm_ui_label_render(&label);
-
-    label.x = panel_x + 24;
-    label.y = panel_y + 166;
-    label.text = hnm_ai_bridge_machine_summary();
-    label.foreground = theme->muted_text;
-    hnm_ui_label_render(&label);
-
-    label.y = panel_y + 190;
-    label.text = hnm_ai_bridge_sync_summary();
-    label.foreground = theme->muted_text;
-    hnm_ui_label_render(&label);
-
-    label.y = panel_y + 214;
-    label.text = "ai asm: observe -> route -> draft -> permission";
-    label.foreground = theme->accent_alt;
-    hnm_ui_label_render(&label);
-
-    label.y = panel_y + 244;
-    label.text = "ESC returns to Launcher";
-    label.foreground = theme->accent_alt;
-    hnm_ui_label_render(&label);
-}
-
-static int hnm_router_reserved_handle_event(const struct hnm_ui_event *event)
-{
-    (void)event;
-    return 0;
-}
-
-static void hnm_router_reserved_on_enter(void)
-{
-    hnm_log_write_line("router: AI panel opened.");
-}
-
-static void hnm_router_reserved_on_exit(void)
-{
-}
 
 static const struct hnm_screen hnm_router_screens[] = {
     {
@@ -164,13 +59,13 @@ static const struct hnm_screen hnm_router_screens[] = {
         hnm_memory_screen_on_exit
     },
     {
-        SCREEN_AI_PANEL_RESERVED,
-        "AI Panel",
-        hnm_router_reserved_init,
-        hnm_router_reserved_render,
-        hnm_router_reserved_handle_event,
-        hnm_router_reserved_on_enter,
-        hnm_router_reserved_on_exit
+        SCREEN_AI_STUDIO,
+        "AI Studio",
+        hnm_ai_studio_screen_init,
+        hnm_ai_studio_screen_render,
+        hnm_ai_studio_screen_handle_event,
+        hnm_ai_studio_screen_on_enter,
+        hnm_ai_studio_screen_on_exit
     }
 };
 
@@ -216,7 +111,7 @@ static void hnm_router_render_top_bar(void)
     hnm_router_label(32, 18, "HNMos", theme->text, theme->top_bar);
     hnm_router_label(32, 42, "Current screen:", theme->muted_text, theme->top_bar);
     hnm_router_label(160, 42, ui_current_screen_name(), theme->text, theme->top_bar);
-    hnm_router_label(256, 42, "1 Terminal 2 System 3 Memory 5 AI ESC Launcher F1 Help", theme->accent_alt, theme->top_bar);
+    hnm_router_label(256, 42, "1 Terminal 2 System 3 Memory 5 AI Studio ESC Launcher F1 Help", theme->accent_alt, theme->top_bar);
     hnm_router_label(fb->width > 248 ? fb->width - 248 : 32, 18, "tick: no timer yet", theme->muted_text, theme->top_bar);
 }
 
@@ -250,7 +145,7 @@ static void hnm_router_render_help_overlay(void)
     hnm_ui_panel_render(&panel);
 
     hnm_router_label(x + 16, y + 14, "Help", theme->text, theme->panel);
-    hnm_router_label(x + 16, y + 38, "Launcher: 1 Terminal 2 System 3 Memory 5 AI 4 Shutdown", theme->muted_text, theme->panel);
+    hnm_router_label(x + 16, y + 38, "Launcher: 1 Terminal 2 System 3 Memory 5 AI Studio 4 Shutdown", theme->muted_text, theme->panel);
     hnm_router_label(x + 16, y + 60, "ESC returns to Launcher. Terminal commands: back exit launcher.", theme->accent_alt, theme->panel);
 }
 
@@ -258,6 +153,7 @@ static int hnm_router_handle_global_shortcut(const struct hnm_ui_event *event)
 {
     if (hnm_router_current_screen == SCREEN_TERMINAL ||
         hnm_router_current_screen == SCREEN_LAUNCHER ||
+        hnm_router_current_screen == SCREEN_AI_STUDIO ||
         event->type != HNM_UI_EVENT_KEY_CHAR) {
         return 0;
     }
@@ -284,7 +180,7 @@ static int hnm_router_handle_global_shortcut(const struct hnm_ui_event *event)
     }
 
     if (event->character == '5') {
-        ui_set_screen(SCREEN_AI_PANEL_RESERVED);
+        ui_set_screen(SCREEN_AI_STUDIO);
         return 1;
     }
 

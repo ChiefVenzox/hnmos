@@ -1,4 +1,5 @@
 #include "input_dispatcher.h"
+#include "../ai/ai_session.h"
 #include "../graphics/color.h"
 #include "../graphics/font.h"
 #include "../graphics/framebuffer.h"
@@ -130,7 +131,9 @@ void hnm_input_dispatcher_dispatch(hnm_input_event_handler handler)
     struct hnm_ui_event event;
 
     while (hnm_ui_event_poll(&event)) {
-        hnm_input_draw_recent_event(&event);
+        if (!hnm_ai_session_is_capturing_secret()) {
+            hnm_input_draw_recent_event(&event);
+        }
 
         if (handler != 0) {
             handler(&event);

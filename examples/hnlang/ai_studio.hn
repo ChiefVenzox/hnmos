@@ -1,0 +1,20 @@
+# HNLang AI Studio composition example.
+# Stage 4 target syntax: parsed as a bounded draft, never as kernel authority.
+
+ai task "create_quick_workspace" {
+  input system.info
+  mode "workspace_draft"
+  output studio.preview
+}
+
+app "QuickWorkspace" {
+  title "Quick Workspace"
+  screen "Editor" {
+    panel "Draft" {
+      text system.info
+    }
+    button "Return" {
+      route "launcher"
+    }
+  }
+}

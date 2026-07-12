@@ -19,8 +19,23 @@
     },
     {
       "capability": "read.fs.metadata",
-      "scope": "/system",
-      "reason": "allow AI to inspect metadata only"
+      "scope": "/workspace",
+      "reason": "allow AI to inspect workspace metadata only"
+    },
+    {
+      "capability": "write.workspace.hnlang",
+      "scope": "/workspace/*.hn",
+      "reason": "write reviewable HNLang drafts without system authority"
+    },
+    {
+      "capability": "read.build.log",
+      "scope": "/workspace/.hnmos/build.log",
+      "reason": "explain workspace build failures"
+    },
+    {
+      "capability": "run.workspace.build",
+      "scope": "/workspace",
+      "reason": "request an approved workspace-only build"
     }
   ],
   "shell": {
@@ -31,7 +46,7 @@
     ]
   },
   "ui": {
-    "mode": "console",
+    "mode": "ai_studio",
     "panels": [
       "assistant_panel",
       "task_monitor"
@@ -39,7 +54,15 @@
   },
   "ai": {
     "uses_ai": true,
-    "context_policy": "public_and_metadata_only",
-    "requires_user_approval_for_actions": true
+    "context_policy": "public_and_workspace_only",
+    "requires_user_approval_for_actions": true,
+    "credential_policy": "volatile_provider_handoff",
+    "forbidden_targets": [
+      "kernel",
+      "boot",
+      "policy",
+      "drivers",
+      "audit"
+    ]
   }
 }

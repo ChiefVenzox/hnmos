@@ -7,6 +7,7 @@
 void hnm_ramfs_init(void);
 int hnm_ramfs_read(const char *path, const struct hnm_fs_node **node);
 int hnm_ramfs_list(const char *path, struct hnm_fs_list *list);
+int hnm_ramfs_write_workspace_hnlang(const char *path, const char *data);
 u32 hnm_ramfs_node_count(void);
 
 #endif

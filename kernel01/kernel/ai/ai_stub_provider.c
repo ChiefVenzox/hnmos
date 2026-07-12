@@ -2,7 +2,15 @@
 
 static int hnm_ai_stub_submit_task(struct hnm_ai_task *task)
 {
-    if (task == 0 || task->status == AI_TASK_EMPTY) {
+    if (task == 0 || task->status == AI_TASK_EMPTY ||
+        task->status == AI_TASK_DONE || task->status == AI_TASK_CANCELLED ||
+        task->status == AI_TASK_ERROR) {
+        return 0;
+    }
+
+    if (task->task_type == HNM_AI_TASK_HNLANG && task->language_profile == 0) {
+        task->status = AI_TASK_ERROR;
+        hnm_ai_task_set_output(task, "AI Stub: HNLang language profile is required.");
         return 0;
     }
 
@@ -12,7 +20,9 @@ static int hnm_ai_stub_submit_task(struct hnm_ai_task *task)
 
 static int hnm_ai_stub_poll_task(struct hnm_ai_task *task)
 {
-    if (task == 0 || task->status == AI_TASK_EMPTY) {
+    if (task == 0 || task->status == AI_TASK_EMPTY ||
+        task->status == AI_TASK_DONE || task->status == AI_TASK_CANCELLED ||
+        task->status == AI_TASK_ERROR) {
         return 0;
     }
 
