@@ -107,14 +107,14 @@ if [ ! -f "$timeout_marker" ] && [ "$qemu_status" -ne 0 ]; then
 fi
 
 expected_lines='HNMos Kernel 01 initialized.
-AI-native operating layer will be loaded later.
+AI-native provider bridge will load on COM2.
 HNMos v0.0.1 demo boot.
 sync: cpu/ram/framebuffer checkpoint layer ready.
-ai bridge: provider active: HNMos Stub Provider
+ai bridge: provider active: HNMos OpenAI Serial Bridge
 status: Kernel 01 is idle.
 console: minimal output console ready.
 hnshell: offline demo stub ready.
-ai-runtime: OS interface stub ready; no model loaded.
+ai-runtime: COM2 external provider bridge ready.
 sync-runtime: cpu/ram/framebuffer checkpoint interface ready.'
 
 printf '%s\n' "$expected_lines" | while IFS= read -r expected_line; do

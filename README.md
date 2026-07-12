@@ -349,6 +349,18 @@ make verify
 
 Some checks require the cross-toolchain, GRUB utilities, and QEMU listed under Prerequisites. A live provider request also requires a valid user-supplied API key and network access.
 
+## Wiki
+
+The [HNMos Wiki](https://github.com/ChiefVenzox/hnmos/wiki) is the home for evolving project guides, design notes, and development workflows. Stable architecture and subsystem documentation remains versioned with the source under [`docs/`](docs/).
+
+Wiki contributions should stay consistent with the current repository state. When a change affects a build command, security boundary, protocol, or public interface, update the corresponding version-controlled document as part of the same pull request.
+
+## Security
+
+HNMos is experimental and is not intended for production or security-critical use. API credentials must never be compiled into the kernel, stored in boot artifacts, or committed to the repository.
+
+Please do not disclose suspected vulnerabilities in a public issue. Follow the private reporting process and supported-version guidance in the [Security Policy](SECURITY.md).
+
 ## Development Status
 
 The repository currently covers the original Kernel 01 boot, graphics, input, memory, filesystem, task, shell, policy, SDK, test, and demo milestones. AI Studio extends that foundation with a real development-time provider path while preserving a small, explicit kernel trust boundary.
